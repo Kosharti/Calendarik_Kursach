@@ -15,7 +15,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:textSize="12sp"
-            android:textColor="@android:color/darker_gray"/>
+            android:textColor="#8F9BB3"
+            android:fontFamily="@font/sfuitext_medium"/>
 
         <ImageView
             android:id="@+id/deleteNoteButton"
@@ -36,12 +37,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="18sp"
-        android:textStyle="bold"/>
+        android:textColor="#222B45"
+        android:fontFamily="@font/sfuitext_medium"/>
 
     <TextView
         android:id="@+id/noteTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14sp"/>
+        android:textSize="14sp"
+        android:textColor="#8F9BB3"
+        android:fontFamily="@font/sfuitext_regular"/>
 
 </LinearLayout>
