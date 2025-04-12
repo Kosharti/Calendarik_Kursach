@@ -1,0 +1,13 @@
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetTop="3dp"
+    android:insetBottom="3dp"
+    android:insetLeft="3dp"
+    android:insetRight="3dp">
+    <shape android:shape="oval">
+        <solid android:color="@android:color/white" />  <!-- Белый цвет ползунка -->
+        <size
+            android:width="30dp"
+            android:height="30dp" />
+    </shape>
+</inset>
+

@@ -25,12 +25,15 @@
             android:textColor="#8F9BB3"
             android:fontFamily="@font/sfuitext_regular"
             android:hint="Event name"
-            android:background="@drawable/shape_1">
+            android:background="@drawable/shape_1"
+            >
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/eventNameEditText"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:hint="Event Name*"
+                android:textColorHint="#8F9BB3"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -39,7 +42,6 @@
             android:layout_height="wrap_content"
             android:textColor="#8F9BB3"
             android:fontFamily="@font/sfuitext_regular"
-            android:hint="Type the note here"
             android:layout_marginTop="20dp"
             android:background="@drawable/shape_2">
 
@@ -48,6 +50,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="top|start"
+                android:hint="Type the note here"
+                android:textColorHint="#8F9BB3"
                 android:inputType="textMultiLine"
                 android:minLines="3" />
 
@@ -199,7 +203,10 @@
         <Switch
             android:id="@+id/reminderSwitch"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:textColorLink="#735BF2"
+            android:thumb="@drawable/switch_thumb"
+            android:track="@drawable/switch_track_selector" />
     </LinearLayout>
         <TextView
             android:layout_width="wrap_content"
