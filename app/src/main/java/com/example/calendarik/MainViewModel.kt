@@ -48,6 +48,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun getAllNotesForMonth(date: LocalDate): LiveData<List<Note>> {
+        val startOfMonth = date.withDayOfMonth(1)
+        val endOfMonth = date.withDayOfMonth(date.lengthOfMonth())
+        return noteDao.getNotesForMonth(startOfMonth, endOfMonth).asLiveData()
+    }
 
     class Factory(private val application: Application) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {

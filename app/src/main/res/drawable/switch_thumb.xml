@@ -4,7 +4,7 @@
     android:insetLeft="3dp"
     android:insetRight="3dp">
     <shape android:shape="oval">
-        <solid android:color="@android:color/white" />  <!-- Белый цвет ползунка -->
+        <solid android:color="@color/gray" />
         <size
             android:width="30dp"
             android:height="30dp" />

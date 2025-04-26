@@ -1,8 +1,7 @@
 package com.example.calendarik
 
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
 import android.os.Bundle
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -11,6 +10,8 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 
 class AddNoteActivity : AppCompatActivity() {
 
@@ -49,6 +50,22 @@ class AddNoteActivity : AppCompatActivity() {
         categoryChipGroup = findViewById(R.id.categoryChipGroup)
         createEventButton = findViewById(R.id.createEventButton)
 
+        // Убираем подсказки после начала ввода
+        eventNameEditText.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                eventNameEditText.hint = null
+            } else if (eventNameEditText.text.isNullOrEmpty()) {
+                eventNameEditText.hint = "Event Name*"
+            }
+        }
+
+        noteTextEditText.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                noteTextEditText.hint = null
+            } else if (noteTextEditText.text.isNullOrEmpty()) {
+                noteTextEditText.hint = "Type the note here..."
+            }
+        }
 
         val dateString = intent.getStringExtra("selectedDate")
         selectedDate = if (dateString != null) {

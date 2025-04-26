@@ -17,6 +17,7 @@ import android.content.Intent
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
+import java.time.DayOfWeek
 
 class Calendarik : AppCompatActivity() {
 
@@ -78,34 +79,57 @@ class Calendarik : AppCompatActivity() {
     private fun setMonthView() {
         monthYearText.text = monthYearFromDate(selectedDate)
         val daysInMonth = daysInMonthArray(selectedDate)
-        val adapter = CalendarAdapter(daysInMonth) { clickedDate ->
-            selectedDate = clickedDate
-            viewModel.setSelectedDate(selectedDate)
-        }
-        val layoutManager = GridLayoutManager(this, 7)
-        calendarRecyclerView.layoutManager = layoutManager
-        calendarRecyclerView.adapter = adapter
+        // Получаем заметки для отображаемого месяца
+        viewModel.getAllNotesForMonth(selectedDate).observe(this, Observer { notes ->
+            val notesMap = notes.groupBy { it.date } // Группируем заметки по дате
+
+            val adapter = CalendarAdapter(daysInMonth, selectedDate, notesMap) { clickedDate ->
+                selectedDate = clickedDate
+                viewModel.setSelectedDate(selectedDate)
+            }
+            val layoutManager = GridLayoutManager(this, 7)
+            calendarRecyclerView.layoutManager = layoutManager
+            calendarRecyclerView.adapter = adapter
+        })
     }
 
-    private fun daysInMonthArray(date: LocalDate): ArrayList<LocalDate> {
-        val daysInMonthArray = ArrayList<LocalDate>()
+
+    private fun daysInMonthArray(date: LocalDate): ArrayList<LocalDate?> {
+        val daysInMonthArray = ArrayList<LocalDate?>()
 
         val yearMonth = YearMonth.from(date)
-        val daysInMonth = yearMonth.lengthOfMonth()
-
         val firstOfMonth = date.withDayOfMonth(1)
-        val dayOfWeek = firstOfMonth.dayOfWeek.value
+        val dayOfWeek = firstOfMonth.dayOfWeek.value // 1 (Mon) to 7 (Sun)
 
-        for (i in 1..42) {
-            if (i <= dayOfWeek || i > daysInMonth + dayOfWeek) {
-                daysInMonthArray.add(LocalDate.MIN)
-            } else {
-                daysInMonthArray.add(LocalDate.of(date.year, date.monthValue, i - dayOfWeek))
-            }
+        // Calculate the number of days to add from the previous month
+        val daysBefore = dayOfWeek - 1 // Adjust to start from Monday
+        var prevMonthDate = firstOfMonth.minusDays(daysBefore.toLong())
+
+        // Add days from the previous month
+        for (i in 1..daysBefore) {
+            daysInMonthArray.add(prevMonthDate)
+            prevMonthDate = prevMonthDate.plusDays(1)
+        }
+
+        // Add days from the current month
+        val daysInMonth = yearMonth.lengthOfMonth()
+        for (i in 1..daysInMonth) {
+            daysInMonthArray.add(LocalDate.of(date.year, date.monthValue, i))
+        }
+
+        // Calculate the number of days to add from the next month
+        val daysAfter = 35 - daysInMonthArray.size
+
+        // Add days from the next month
+        var nextMonthDate = LocalDate.of(date.year, date.monthValue, daysInMonth).plusDays(1)
+        for (i in 1..daysAfter) {
+            daysInMonthArray.add(nextMonthDate)
+            nextMonthDate = nextMonthDate.plusDays(1)
         }
 
         return daysInMonthArray
     }
+
 
     private fun monthYearFromDate(date: LocalDate): String {
         val formatter = DateTimeFormatter.ofPattern("MMMM\nyyyy", Locale.getDefault())
