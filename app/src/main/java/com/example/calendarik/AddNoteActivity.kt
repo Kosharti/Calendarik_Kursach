@@ -50,7 +50,6 @@ class AddNoteActivity : AppCompatActivity() {
         categoryChipGroup = findViewById(R.id.categoryChipGroup)
         createEventButton = findViewById(R.id.createEventButton)
 
-        // Убираем подсказки после начала ввода
         eventNameEditText.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 eventNameEditText.hint = null

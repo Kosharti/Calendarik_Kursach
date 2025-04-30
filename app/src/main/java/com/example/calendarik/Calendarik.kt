@@ -79,9 +79,8 @@ class Calendarik : AppCompatActivity() {
     private fun setMonthView() {
         monthYearText.text = monthYearFromDate(selectedDate)
         val daysInMonth = daysInMonthArray(selectedDate)
-        // Получаем заметки для отображаемого месяца
         viewModel.getAllNotesForMonth(selectedDate).observe(this, Observer { notes ->
-            val notesMap = notes.groupBy { it.date } // Группируем заметки по дате
+            val notesMap = notes.groupBy { it.date }
 
             val adapter = CalendarAdapter(daysInMonth, selectedDate, notesMap) { clickedDate ->
                 selectedDate = clickedDate
@@ -99,28 +98,23 @@ class Calendarik : AppCompatActivity() {
 
         val yearMonth = YearMonth.from(date)
         val firstOfMonth = date.withDayOfMonth(1)
-        val dayOfWeek = firstOfMonth.dayOfWeek.value // 1 (Mon) to 7 (Sun)
+        val dayOfWeek = firstOfMonth.dayOfWeek.value
 
-        // Calculate the number of days to add from the previous month
-        val daysBefore = dayOfWeek - 1 // Adjust to start from Monday
+        val daysBefore = dayOfWeek - 1
         var prevMonthDate = firstOfMonth.minusDays(daysBefore.toLong())
 
-        // Add days from the previous month
         for (i in 1..daysBefore) {
             daysInMonthArray.add(prevMonthDate)
             prevMonthDate = prevMonthDate.plusDays(1)
         }
 
-        // Add days from the current month
         val daysInMonth = yearMonth.lengthOfMonth()
         for (i in 1..daysInMonth) {
             daysInMonthArray.add(LocalDate.of(date.year, date.monthValue, i))
         }
 
-        // Calculate the number of days to add from the next month
         val daysAfter = 35 - daysInMonthArray.size
 
-        // Add days from the next month
         var nextMonthDate = LocalDate.of(date.year, date.monthValue, daysInMonth).plusDays(1)
         for (i in 1..daysAfter) {
             daysInMonthArray.add(nextMonthDate)
