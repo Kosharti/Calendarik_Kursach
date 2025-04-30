@@ -9,7 +9,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:background="@drawable/bottom_sheet_background"
+        android:clipToOutline="true">
 
         <TextView
             android:layout_width="wrap_content"
@@ -62,38 +64,26 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/shape_data">
-
-        <TextView
-            android:id="@+id/dateTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textColor="#8F9BB3"
-            android:fontFamily="@font/sfuitext_regular"
-            android:text="Date"
-            android:textSize="15dp"
-            android:layout_marginTop="14dp"
-            android:layout_marginStart="9dp"/>
-
-        <Space
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/shape_data">
 
-        <Button
-            android:id="@+id/dateButton"
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:layout_marginTop="14dp"
-            android:background="@drawable/ic_calendar_gray"
-            android:layout_marginEnd="10dp"
-            app:backgroundTint="#8F9BB3"/>
-    </LinearLayout>
+            <EditText
+                android:id="@+id/dateTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textColor="#8F9BB3"
+                android:fontFamily="@font/sfuitext_regular"
+                android:text="Date"
+                android:textSize="15dp"
+                android:layout_marginTop="14dp"
+                android:layout_marginStart="9dp"/>
+
+
+        </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -106,7 +96,7 @@
                 android:layout_marginTop="8dp"
                 android:background="@drawable/shape_time">
 
-                <TextView
+                <EditText
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textColor="#8F9BB3"
@@ -117,7 +107,7 @@
                     android:layout_marginTop="14dp"
                     android:layout_marginStart="10dp"/>
 
-                <TextView
+                <EditText
                     android:id="@+id/startTimeTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
@@ -128,15 +118,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
-
-                <Button
-                    android:id="@+id/startTimeButton"
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:layout_marginEnd="10dp"
-                    android:layout_marginTop="14dp"
-                    android:background="@drawable/ic_timeline"
-                    app:backgroundTint="#8F9BB3"/>
 
             </LinearLayout>
 
@@ -153,69 +134,58 @@
                 android:background="@drawable/shape_time">
 
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:textAlignment="center"
-                android:textColor="#8F9BB3"
-                android:fontFamily="@font/sfuitext_regular"
-                android:textSize="15dp"
-                android:text="End Time"
-                android:layout_marginTop="14dp"
-                android:layout_marginStart="10dp"/>
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:textAlignment="center"
+                    android:textColor="#8F9BB3"
+                    android:fontFamily="@font/sfuitext_regular"
+                    android:textSize="15dp"
+                    android:text="End Time"
+                    android:layout_marginTop="14dp"
+                    android:layout_marginStart="10dp"/>
 
-                <TextView
+                <EditText
                     android:id="@+id/endTimeTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text=""
                     android:layout_marginTop="14dp"/>
 
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-
-
-            <Button
-                android:id="@+id/endTimeButton"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:layout_marginTop="14dp"
-                android:layout_marginEnd="10dp"
-                android:background="@drawable/ic_timeline"
-                app:backgroundTint="#8F9BB3"/>
+                <Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
 
             </LinearLayout>
 
         </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="20dp">
-
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="#222B45"
-            android:fontFamily="@font/sfuitext_regular"
-            android:text="Reminds me" />
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp">
 
-        <Space
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#222B45"
+                android:fontFamily="@font/sfuitext_regular"
+                android:text="Reminds me" />
 
-        <Switch
-            android:id="@+id/reminderSwitch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColorLink="#735BF2"
-            android:theme="@style/Theme.Material3.DayNight" />
-    </LinearLayout>
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Switch
+                android:id="@+id/reminderSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColorLink="#735BF2"
+                android:theme="@style/Theme.Material3.DayNight" />
+        </LinearLayout>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -238,6 +208,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="#000000"
                 app:chipIcon="@drawable/oval_1"
+                app:chipIconSize="20dp"
                 android:backgroundTint="#F5F3FE"
                 android:fontFamily="@font/sfuitext_regular"
                 android:text="Brainstorm"
@@ -250,6 +221,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="#000000"
                 app:chipIcon="@drawable/oval_2"
+                app:chipIconSize="20dp"
                 android:backgroundTint="#EDFAF6"
                 android:fontFamily="@font/sfuitext_regular"
                 android:text="Design"/>
@@ -261,6 +233,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="#000000"
                 app:chipIcon="@drawable/oval_3"
+                app:chipIconSize="20dp"
                 android:backgroundTint="#EDF7FF"
                 android:fontFamily="@font/sfuitext_regular"
                 android:text="Workout"/>

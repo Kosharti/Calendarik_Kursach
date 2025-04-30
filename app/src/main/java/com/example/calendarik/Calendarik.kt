@@ -4,20 +4,18 @@ import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.ArrayList
 import java.util.Locale
-import android.content.Intent
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.DividerItemDecoration
-import java.time.DayOfWeek
 
 class Calendarik : AppCompatActivity() {
 
@@ -69,9 +67,8 @@ class Calendarik : AppCompatActivity() {
         }
 
         addNoteButton.setOnClickListener {
-            val intent = Intent(this, com.example.calendarik.AddNoteActivity::class.java)
-            intent.putExtra("selectedDate", selectedDate.toString())
-            startActivity(intent)
+            val bottomSheetDialogFragment = AddNoteBottomSheetDialogFragment.newInstance(selectedDate)
+            bottomSheetDialogFragment.show(supportFragmentManager, bottomSheetDialogFragment.tag)
         }
 
     }
@@ -131,3 +128,4 @@ class Calendarik : AppCompatActivity() {
     }
 
 }
+

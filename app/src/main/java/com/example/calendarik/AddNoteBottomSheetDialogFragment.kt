@@ -1,28 +1,27 @@
 package com.example.calendarik
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.*
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.ChipGroup
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.*
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
 
-class AddNoteActivity : AppCompatActivity() {
+class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     private lateinit var eventNameEditText: EditText
     private lateinit var noteTextEditText: EditText
-    private lateinit var dateTextView: TextView
-    private lateinit var dateButton: Button
-    private lateinit var startTimeButton: Button
-    private lateinit var endTimeButton: Button
-    private lateinit var startTimeTextView: TextView
-    private lateinit var endTimeTextView: TextView
+    private lateinit var dateEditText: EditText
+    private lateinit var startTimeEditText: EditText
+    private lateinit var endTimeEditText: EditText
     private lateinit var reminderSwitch: Switch
     private lateinit var categoryChipGroup: ChipGroup
     private lateinit var createEventButton: Button
@@ -31,25 +30,30 @@ class AddNoteActivity : AppCompatActivity() {
     private var selectedEndTime: LocalTime? = null
     private lateinit var viewModel: MainViewModel
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_add_note)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.activity_add_note, container, false) // Используем существующий макет
+    }
 
-        val factory = MainViewModel.Factory(application)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val factory = MainViewModel.Factory(requireActivity().application)
         viewModel = ViewModelProvider(this, factory).get(MainViewModel::class.java)
 
-        eventNameEditText = findViewById(R.id.eventNameEditText)
-        noteTextEditText = findViewById(R.id.noteTextEditText)
-        dateTextView = findViewById(R.id.dateTextView)
-        dateButton = findViewById(R.id.dateButton)
-        startTimeButton = findViewById(R.id.startTimeButton)
-        endTimeButton = findViewById(R.id.endTimeButton)
-        startTimeTextView = findViewById(R.id.startTimeTextView)
-        endTimeTextView = findViewById(R.id.endTimeTextView)
-        reminderSwitch = findViewById(R.id.reminderSwitch)
-        categoryChipGroup = findViewById(R.id.categoryChipGroup)
-        createEventButton = findViewById(R.id.createEventButton)
+        eventNameEditText = view.findViewById(R.id.eventNameEditText)
+        noteTextEditText = view.findViewById(R.id.noteTextEditText)
+        dateEditText = view.findViewById(R.id.dateTextView) // ИЗМЕНЕНО: EditText вместо TextView
+        startTimeEditText = view.findViewById(R.id.startTimeTextView) // ИЗМЕНЕНО: EditText вместо TextView
+        endTimeEditText = view.findViewById(R.id.endTimeTextView) // ИЗМЕНЕНО: EditText вместо TextView
+        reminderSwitch = view.findViewById(R.id.reminderSwitch)
+        categoryChipGroup = view.findViewById(R.id.categoryChipGroup)
+        createEventButton = view.findViewById(R.id.createEventButton)
 
+        // Устанавливаем слушатели фокуса для подсказок
         eventNameEditText.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 eventNameEditText.hint = null
@@ -66,16 +70,18 @@ class AddNoteActivity : AppCompatActivity() {
             }
         }
 
-        val dateString = intent.getStringExtra("selectedDate")
+        // Получаем выбранную дату из аргументов (если есть)
+        val dateString = arguments?.getString("selectedDate")
         selectedDate = if (dateString != null) {
             LocalDate.parse(dateString)
         } else {
             LocalDate.now()
         }
-        updateDateTextView()
-        dateButton.setOnClickListener { showDatePickerDialog() }
-        startTimeButton.setOnClickListener { showTimePickerDialog(true) }
-        endTimeButton.setOnClickListener { showTimePickerDialog(false) }
+
+        updateDateEditText()  //  Используем EditText
+        dateEditText.setOnClickListener { showDatePickerDialog() }
+        startTimeEditText.setOnClickListener { showTimePickerDialog(true) }
+        endTimeEditText.setOnClickListener { showTimePickerDialog(false) }
 
         createEventButton.setOnClickListener { createEvent() }
     }
@@ -86,9 +92,9 @@ class AddNoteActivity : AppCompatActivity() {
         val month = calendar.get(Calendar.MONTH)
         val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-        val dpd = DatePickerDialog(this, { _, year, monthOfYear, dayOfMonth ->
+        val dpd = DatePickerDialog(requireContext(), { _, year, monthOfYear, dayOfMonth ->
             selectedDate = LocalDate.of(year, monthOfYear + 1, dayOfMonth)
-            updateDateTextView()
+            updateDateEditText() //  Используем EditText
         }, year, month, day)
         dpd.show()
     }
@@ -98,21 +104,21 @@ class AddNoteActivity : AppCompatActivity() {
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
         val minute = calendar.get(Calendar.MINUTE)
 
-        val tpd = TimePickerDialog(this, { _, hourOfDay, minute ->
+        val tpd = TimePickerDialog(requireContext(), { _, hourOfDay, minute ->
             val time = LocalTime.of(hourOfDay, minute)
             if (isStartTime) {
                 selectedStartTime = time
-                startTimeTextView.text = time.format(DateTimeFormatter.ofPattern("HH:mm"))
+                startTimeEditText.setText(time.format(DateTimeFormatter.ofPattern("HH:mm"))) //setText вместо text
             } else {
                 selectedEndTime = time
-                endTimeTextView.text = time.format(DateTimeFormatter.ofPattern("HH:mm"))
+                endTimeEditText.setText(time.format(DateTimeFormatter.ofPattern("HH:mm")))  //setText вместо text
             }
         }, hour, minute, true)
         tpd.show()
     }
 
-    private fun updateDateTextView() {
-        dateTextView.text = "Date: ${selectedDate.format(DateTimeFormatter.ISO_LOCAL_DATE)}"
+    private fun updateDateEditText() {
+        dateEditText.setText(selectedDate.format(DateTimeFormatter.ISO_LOCAL_DATE)) //setText вместо text
     }
 
     private fun createEvent() {
@@ -139,7 +145,16 @@ class AddNoteActivity : AppCompatActivity() {
         )
 
         viewModel.insertNote(note)
+        dismiss() // Закрываем BottomSheet
+    }
 
-        finish()
+    companion object {
+        fun newInstance(selectedDate: LocalDate? = null): AddNoteBottomSheetDialogFragment {
+            val fragment = AddNoteBottomSheetDialogFragment()
+            val args = Bundle()
+            args.putString("selectedDate", selectedDate?.toString())
+            fragment.arguments = args
+            return fragment
+        }
     }
 }
