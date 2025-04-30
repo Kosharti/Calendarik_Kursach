@@ -28,11 +28,6 @@
             android:exported="true"
             android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
         </activity>
-        <activity
-            android:name=".AddNoteBottomSheetDialogFragment"
-            android:exported="true"
-            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
-        </activity>
     </application>
 
 </manifest>
