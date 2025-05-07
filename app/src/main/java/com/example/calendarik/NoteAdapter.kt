@@ -28,12 +28,11 @@ class NoteAdapter(private val onDeleteClick: (Note) -> Unit) : ListAdapter<Note,
                 note.startTime != null -> note.startTime.toString()
                 else -> ""
             }
-            // Устанавливаем иконку категории
             val iconResource = when (note.category) {
                 "Brainstorm" -> R.drawable.oval_1
                 "Design" -> R.drawable.oval_2
                 "Workout" -> R.drawable.oval_3
-                else -> R.drawable.oval_1 // Дефолтная иконка
+                else -> R.drawable.oval_1
             }
             categoryIcon.setImageResource(iconResource)
         }

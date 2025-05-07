@@ -15,7 +15,7 @@ import java.time.LocalDate
 
 class CalendarAdapter(
     private val days: ArrayList<LocalDate?>,
-    private var selectedDate: LocalDate,  // Изменено на var
+    private var selectedDate: LocalDate,
     private val notesForDate: Map<LocalDate, List<Note>>,
     private val onItemClick: (LocalDate) -> Unit
 ) : RecyclerView.Adapter<CalendarAdapter.ViewHolder>() {
@@ -44,7 +44,6 @@ class CalendarAdapter(
                 holder.dayOfMonth.setTextColor(Color.BLACK)
             }
 
-            // Сравниваем текущую дату с выбранной датой адаптера
             if (date == selectedDate) {
                 holder.dayOfMonth.setTextColor(Color.WHITE)
 
@@ -60,8 +59,8 @@ class CalendarAdapter(
 
             holder.itemView.setOnClickListener {
                 onItemClick(date)
-                setSelectedDate(date) // Обновляем выбранную дату
-                notifyDataSetChanged() // Перерисовываем календарь
+                setSelectedDate(date)
+                notifyDataSetChanged()
             }
 
             displayCategoryRings(holder, date)
@@ -72,7 +71,7 @@ class CalendarAdapter(
     }
     fun setSelectedDate(date: LocalDate) {
         selectedDate = date
-        notifyDataSetChanged() // Обновляем отображение
+        notifyDataSetChanged()
     }
 
     private fun displayCategoryRings(holder: ViewHolder, date: LocalDate) {

@@ -28,8 +28,7 @@
             android:textColor="#8F9BB3"
             android:fontFamily="@font/sfuitext_regular"
             android:background="@drawable/shape_1"
-            app:hintEnabled="false"
-            >
+            app:hintEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/eventNameEditText"
@@ -38,7 +37,8 @@
                 android:hint="Event Name*"
                 android:textColorHint="#8F9BB3"
                 android:inputType="text"
-                android:textColor="#222B45"/>
+                android:textColor="#222B45"
+                android:maxLength="20"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -49,7 +49,7 @@
             android:fontFamily="@font/sfuitext_regular"
             android:layout_marginTop="20dp"
             android:background="@drawable/shape_2"
-            app:hintEnabled="false">
+            app:hintEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/noteTextEditText"
@@ -60,7 +60,8 @@
                 android:textColorHint="#8F9BB3"
                 android:inputType="textMultiLine"
                 android:minLines="3"
-                android:textColor="#222B45"/>
+                android:textColor="#222B45"
+                android:maxLength="40"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -77,11 +78,26 @@
                 android:layout_height="match_parent"
                 android:textColor="#8F9BB3"
                 android:fontFamily="@font/sfuitext_regular"
-                android:text="Date"
+                android:hint="Date"
                 android:textSize="15dp"
                 android:layout_marginTop="14dp"
-                android:layout_marginStart="9dp"/>
+                android:layout_marginStart="9dp"
+                android:background="@android:color/transparent"/>
 
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <ImageButton
+                android:id="@+id/dateButton"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:layout_marginEnd="10dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_calendar_gray"
+                app:tint="#8F9BB3"/>
 
         </LinearLayout>
         <LinearLayout
@@ -97,27 +113,31 @@
                 android:background="@drawable/shape_time">
 
                 <EditText
+                    android:id="@+id/startTimeTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textColor="#8F9BB3"
                     android:fontFamily="@font/sfuitext_regular"
-                    android:text="Start Time"
+                    android:hint="Start Time"
                     android:textAlignment="center"
                     android:textSize="15dp"
-                    android:layout_marginTop="14dp"
-                    android:layout_marginStart="10dp"/>
-
-                <EditText
-                    android:id="@+id/startTimeTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:text=""
-                    android:layout_marginTop="14dp"/>
+                    android:layout_marginStart="10dp"
+                    android:background="@android:color/transparent"/>
 
                 <Space
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
+
+                <ImageButton
+                    android:id="@+id/startTimeButton"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_gravity="center"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_timeline"
+                    />
 
             </LinearLayout>
 
@@ -135,27 +155,30 @@
 
 
                 <EditText
+                    android:id="@+id/endTimeTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textAlignment="center"
                     android:textColor="#8F9BB3"
                     android:fontFamily="@font/sfuitext_regular"
                     android:textSize="15dp"
-                    android:text="End Time"
-                    android:layout_marginTop="14dp"
-                    android:layout_marginStart="10dp"/>
-
-                <EditText
-                    android:id="@+id/endTimeTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:text=""
-                    android:layout_marginTop="14dp"/>
+                    android:hint="End Time"
+                    android:background="@android:color/transparent"/>
 
                 <Space
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
+
+                <ImageButton
+                    android:id="@+id/endTimeButton"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_gravity="center"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_timeline"
+                    app:tint="#8F9BB3"/>
 
             </LinearLayout>
 
@@ -203,38 +226,35 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/brainstormChip"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#000000"
                 app:chipIcon="@drawable/oval_1"
                 app:chipIconSize="20dp"
-                android:backgroundTint="#F5F3FE"
+                app:chipBackgroundColor="#F5F3FE"
                 android:fontFamily="@font/sfuitext_regular"
                 android:text="Brainstorm"
                 />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/designChip"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#000000"
                 app:chipIcon="@drawable/oval_2"
                 app:chipIconSize="20dp"
-                android:backgroundTint="#EDFAF6"
+                app:chipBackgroundColor="#EDFAF6"
                 android:fontFamily="@font/sfuitext_regular"
                 android:text="Design"/>
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/workoutChip"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#000000"
                 app:chipIcon="@drawable/oval_3"
                 app:chipIconSize="20dp"
-                android:backgroundTint="#EDF7FF"
+                app:chipBackgroundColor="#EDF7FF"
                 android:fontFamily="@font/sfuitext_regular"
                 android:text="Workout"/>
 
@@ -245,6 +265,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/sfuitext_regular"
+            android:textColor="@color/white"
             android:text="Create Event"
             android:layout_marginTop="25dp"
             app:backgroundTint="#735BF2"/>

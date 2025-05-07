@@ -1,3 +1,4 @@
+
 package com.example.calendarik
 
 import android.app.DatePickerDialog
@@ -35,7 +36,7 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.activity_add_note, container, false) // Используем существующий макет
+        return inflater.inflate(R.layout.activity_add_note, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -46,31 +47,17 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
         eventNameEditText = view.findViewById(R.id.eventNameEditText)
         noteTextEditText = view.findViewById(R.id.noteTextEditText)
-        dateEditText = view.findViewById(R.id.dateTextView) // ИЗМЕНЕНО: EditText вместо TextView
-        startTimeEditText = view.findViewById(R.id.startTimeTextView) // ИЗМЕНЕНО: EditText вместо TextView
-        endTimeEditText = view.findViewById(R.id.endTimeTextView) // ИЗМЕНЕНО: EditText вместо TextView
+        dateEditText = view.findViewById(R.id.dateTextView)
+        startTimeEditText = view.findViewById(R.id.startTimeTextView)
+        endTimeEditText = view.findViewById(R.id.endTimeTextView)
         reminderSwitch = view.findViewById(R.id.reminderSwitch)
         categoryChipGroup = view.findViewById(R.id.categoryChipGroup)
         createEventButton = view.findViewById(R.id.createEventButton)
 
-        // Устанавливаем слушатели фокуса для подсказок
-        eventNameEditText.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                eventNameEditText.hint = null
-            } else if (eventNameEditText.text.isNullOrEmpty()) {
-                eventNameEditText.hint = "Event Name*"
-            }
-        }
+        val dateButton: ImageButton = view.findViewById(R.id.dateButton)
+        val startTimeButton: ImageButton = view.findViewById(R.id.startTimeButton)
+        val endTimeButton: ImageButton = view.findViewById(R.id.endTimeButton)
 
-        noteTextEditText.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                noteTextEditText.hint = null
-            } else if (noteTextEditText.text.isNullOrEmpty()) {
-                noteTextEditText.hint = "Type the note here..."
-            }
-        }
-
-        // Получаем выбранную дату из аргументов (если есть)
         val dateString = arguments?.getString("selectedDate")
         selectedDate = if (dateString != null) {
             LocalDate.parse(dateString)
@@ -78,10 +65,13 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
             LocalDate.now()
         }
 
-        updateDateEditText()  //  Используем EditText
+        updateDateEditText()
         dateEditText.setOnClickListener { showDatePickerDialog() }
+        dateButton.setOnClickListener { showDatePickerDialog() }
         startTimeEditText.setOnClickListener { showTimePickerDialog(true) }
+        startTimeButton.setOnClickListener { showTimePickerDialog(true) }
         endTimeEditText.setOnClickListener { showTimePickerDialog(false) }
+        endTimeButton.setOnClickListener { showTimePickerDialog(false) }
 
         createEventButton.setOnClickListener { createEvent() }
     }
@@ -94,7 +84,7 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
         val dpd = DatePickerDialog(requireContext(), { _, year, monthOfYear, dayOfMonth ->
             selectedDate = LocalDate.of(year, monthOfYear + 1, dayOfMonth)
-            updateDateEditText() //  Используем EditText
+            updateDateEditText()
         }, year, month, day)
         dpd.show()
     }
@@ -106,19 +96,20 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
         val tpd = TimePickerDialog(requireContext(), { _, hourOfDay, minute ->
             val time = LocalTime.of(hourOfDay, minute)
+            val formattedTime = time.format(DateTimeFormatter.ofPattern("HH:mm"))
             if (isStartTime) {
                 selectedStartTime = time
-                startTimeEditText.setText(time.format(DateTimeFormatter.ofPattern("HH:mm"))) //setText вместо text
+                startTimeEditText.hint = formattedTime
             } else {
                 selectedEndTime = time
-                endTimeEditText.setText(time.format(DateTimeFormatter.ofPattern("HH:mm")))  //setText вместо text
+                endTimeEditText.hint = formattedTime
             }
         }, hour, minute, true)
         tpd.show()
     }
 
     private fun updateDateEditText() {
-        dateEditText.setText(selectedDate.format(DateTimeFormatter.ISO_LOCAL_DATE)) //setText вместо text
+        dateEditText.hint = selectedDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
     }
 
     private fun createEvent() {
@@ -145,7 +136,7 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
         )
 
         viewModel.insertNote(note)
-        dismiss() // Закрываем BottomSheet
+        dismiss()
     }
 
     companion object {
