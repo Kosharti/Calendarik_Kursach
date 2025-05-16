@@ -3,23 +3,28 @@ package com.example.calendarik
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import android.widget.ImageView
-import kotlin.toString
 
-class NoteAdapter(private val onDeleteClick: (Note) -> Unit) : ListAdapter<Note, NoteAdapter.NoteViewHolder>(NoteDiffCallback()) {
+interface NoteActionListener {
+    fun onEdit(note: Note)
+    fun onDelete(note: Note)
+}
+
+class NoteAdapter(private val listener: NoteActionListener) : ListAdapter<Note, NoteAdapter.NoteViewHolder>(NoteDiffCallback()) {
 
     class NoteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val eventNameTextView: TextView = itemView.findViewById(R.id.eventNameTextView)
         val noteTextView: TextView = itemView.findViewById(R.id.noteTextView)
         val timeTextView: TextView = itemView.findViewById(R.id.timeTextView)
-        val deleteButton: ImageView = itemView.findViewById(R.id.deleteNoteButton)
+        val optionsButton: ImageView = itemView.findViewById(R.id.optionsButton)
         val categoryIcon: ImageView = itemView.findViewById(R.id.categoryIcon)
 
-        fun bind(note: Note) {
+        fun bind(note: Note, listener: NoteActionListener) {
             eventNameTextView.text = note.eventName
             noteTextView.text = note.noteText
             timeTextView.text = when {
@@ -35,6 +40,25 @@ class NoteAdapter(private val onDeleteClick: (Note) -> Unit) : ListAdapter<Note,
                 else -> R.drawable.oval_1
             }
             categoryIcon.setImageResource(iconResource)
+
+            optionsButton.setOnClickListener { view ->
+                val popupMenu = PopupMenu(itemView.context, view)
+                popupMenu.menuInflater.inflate(R.menu.note_menu, popupMenu.menu) // Создайте menu/note_menu.xml
+                popupMenu.setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        R.id.edit_note -> {
+                            listener.onEdit(note)
+                            true
+                        }
+                        R.id.delete_note -> {
+                            listener.onDelete(note)
+                            true
+                        }
+                        else -> false
+                    }
+                }
+                popupMenu.show()
+            }
         }
     }
 
@@ -45,10 +69,7 @@ class NoteAdapter(private val onDeleteClick: (Note) -> Unit) : ListAdapter<Note,
 
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
         val note = getItem(position)
-        holder.bind(note)
-        holder.deleteButton.setOnClickListener {
-            onDeleteClick(note)
-        }
+        holder.bind(note, listener)
     }
 }
 

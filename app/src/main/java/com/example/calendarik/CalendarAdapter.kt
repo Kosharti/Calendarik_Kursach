@@ -1,108 +1,108 @@
 package com.example.calendarik
 
-import android.content.Context
+import android.annotation.SuppressLint
 import android.graphics.Color
-import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import java.time.LocalDate
+import java.util.*
 
 class CalendarAdapter(
     private val days: ArrayList<LocalDate?>,
     private var selectedDate: LocalDate,
-    private val notesForDate: Map<LocalDate, List<Note>>,
-    private val onItemClick: (LocalDate) -> Unit
-) : RecyclerView.Adapter<CalendarAdapter.ViewHolder>() {
+    private val notesMap: Map<LocalDate, List<Note>>,
+    private val onItemClick: (LocalDate) -> Unit,
+    private val onMonthChange: (LocalDate) -> Unit
+) : RecyclerView.Adapter<CalendarAdapter.CalendarViewHolder>() {
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    private var selectedPosition = RecyclerView.NO_POSITION
+
+    class CalendarViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val dayOfMonth: TextView = itemView.findViewById(R.id.dayTextView)
         val circleIndicator: View = itemView.findViewById(R.id.circleIndicator)
         val ringsContainer: LinearLayout = itemView.findViewById(R.id.ringsContainer)
+
+        fun clearBackground() {
+            itemView.setBackgroundColor(Color.TRANSPARENT)
+            dayOfMonth.setTextColor(Color.BLACK)
+        }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.calendar_cell, parent, false)
-        return ViewHolder(view)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CalendarViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.calendar_cell, parent, false)
+        return CalendarViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    @SuppressLint("UseCompatLoadingForDrawables")
+    override fun onBindViewHolder(holder: CalendarViewHolder, position: Int) {
         val date = days[position]
+        holder.clearBackground()
 
-        holder.dayOfMonth.text = date?.dayOfMonth?.toString() ?: ""
+        if (date == null) {
+            holder.dayOfMonth.text = ""
+            holder.circleIndicator.visibility = View.GONE
+            holder.itemView.isEnabled = false
+            holder.dayOfMonth.setTextColor(Color.LTGRAY)
+        } else {
+            holder.dayOfMonth.text = date.dayOfMonth.toString()
+            holder.itemView.isEnabled = true
 
-        if (date != null) {
-            if (date.month != selectedDate.month) {
-                holder.dayOfMonth.setTextColor(Color.GRAY)
-            } else {
-                holder.dayOfMonth.setTextColor(Color.BLACK)
-            }
+            holder.dayOfMonth.setTextColor(if (date.monthValue == selectedDate.monthValue) Color.BLACK else Color.LTGRAY)
+            holder.circleIndicator.visibility = if (date == selectedDate) View.VISIBLE else View.GONE
 
-            if (date == selectedDate) {
-                holder.dayOfMonth.setTextColor(Color.WHITE)
-
-                val shape = GradientDrawable()
-                shape.shape = GradientDrawable.RECTANGLE
-                shape.cornerRadius = 25f
-                shape.setColor(ContextCompat.getColor(holder.itemView.context, R.color.purple_500))
-                holder.circleIndicator.background = shape
-                holder.circleIndicator.visibility = View.VISIBLE
-            } else {
-                holder.circleIndicator.visibility = View.GONE
+            // 🟣 Показываем иконки категорий под числом
+            holder.ringsContainer.removeAllViews()
+            val notesForDay = notesMap[date]
+            notesForDay?.forEach { note ->
+                val imageView = ImageView(holder.itemView.context)
+                imageView.layoutParams = LinearLayout.LayoutParams(16, 16).apply {
+                    setMargins(2, 0, 2, 0)
+                }
+                val icon = when (note.category) {
+                    "Brainstorm" -> R.drawable.oval_1
+                    "Design" -> R.drawable.oval_2
+                    "Workout" -> R.drawable.oval_3
+                    else -> R.drawable.oval_1
+                }
+                imageView.setImageResource(icon)
+                holder.ringsContainer.addView(imageView)
             }
 
             holder.itemView.setOnClickListener {
-                onItemClick(date)
-                setSelectedDate(date)
-                notifyDataSetChanged()
+                if (date.monthValue != selectedDate.monthValue) {
+                    onMonthChange(date)
+                } else {
+                    val previousSelectedPosition = selectedPosition
+                    selectedPosition = holder.adapterPosition
+
+                    if (previousSelectedPosition != RecyclerView.NO_POSITION) {
+                        notifyItemChanged(previousSelectedPosition)
+                    }
+                    notifyItemChanged(selectedPosition)
+
+                    onItemClick(date)
+                }
             }
 
-            displayCategoryRings(holder, date)
-
-        } else {
-            holder.circleIndicator.visibility = View.GONE
-        }
-    }
-    fun setSelectedDate(date: LocalDate) {
-        selectedDate = date
-        notifyDataSetChanged()
-    }
-
-    private fun displayCategoryRings(holder: ViewHolder, date: LocalDate) {
-        holder.ringsContainer.removeAllViews()
-
-        val notes = notesForDate[date] ?: emptyList()
-
-        notes.forEach { note ->
-            val ring = ImageView(holder.itemView.context)
-            val ringColor = when (note.category) {
-                "Brainstorm" -> R.drawable.oval_1
-                "Design" -> R.drawable.oval_2
-                "Workout" -> R.drawable.oval_3
-                else -> R.drawable.oval_1
+            if (position == selectedPosition) {
+                holder.itemView.background = holder.itemView.context.getDrawable(R.drawable.rounded_corner_background)
+                holder.dayOfMonth.setTextColor(Color.WHITE)
+            } else {
+                holder.itemView.background = null
+                holder.itemView.setBackgroundColor(Color.TRANSPARENT)
             }
-            ring.setImageResource(ringColor)
-
-            val params = LinearLayout.LayoutParams(
-                dpToPx(10, holder.itemView.context),
-                dpToPx(10, holder.itemView.context)
-            )
-
-            ring.layoutParams = params
-            holder.ringsContainer.addView(ring)
         }
     }
 
     override fun getItemCount(): Int = days.size
 
-    private fun dpToPx(dp: Int, context: Context): Int {
-        val scale = context.resources.displayMetrics.density
-        return (dp * scale + 0.5f).toInt()
+    fun setSelectedDate(date: LocalDate) {
+        selectedDate = date
+        notifyDataSetChanged()
     }
 }

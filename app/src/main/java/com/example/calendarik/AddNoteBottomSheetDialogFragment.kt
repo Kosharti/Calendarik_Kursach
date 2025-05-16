@@ -1,18 +1,26 @@
-
 package com.example.calendarik
 
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
+import android.Manifest
+import android.app.*
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.ChipGroup
-import java.time.LocalDate
-import java.time.LocalTime
+import java.time.*
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -30,14 +38,20 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private var selectedStartTime: LocalTime? = null
     private var selectedEndTime: LocalTime? = null
     private lateinit var viewModel: MainViewModel
+    private var noteId: Long? = null
+
+    private val EXACT_ALARM_PERMISSION_CODE = 123
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        noteId = arguments?.getLong("noteId")
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.activity_add_note, container, false)
-    }
+    ): View? = inflater.inflate(R.layout.activity_add_note, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -59,13 +73,9 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
         val endTimeButton: ImageButton = view.findViewById(R.id.endTimeButton)
 
         val dateString = arguments?.getString("selectedDate")
-        selectedDate = if (dateString != null) {
-            LocalDate.parse(dateString)
-        } else {
-            LocalDate.now()
-        }
-
+        selectedDate = if (dateString != null) LocalDate.parse(dateString) else LocalDate.now()
         updateDateEditText()
+
         dateEditText.setOnClickListener { showDatePickerDialog() }
         dateButton.setOnClickListener { showDatePickerDialog() }
         startTimeEditText.setOnClickListener { showTimePickerDialog(true) }
@@ -73,79 +83,156 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
         endTimeEditText.setOnClickListener { showTimePickerDialog(false) }
         endTimeButton.setOnClickListener { showTimePickerDialog(false) }
 
-        createEventButton.setOnClickListener { createEvent() }
-    }
-
-    private fun showDatePickerDialog() {
-        val calendar = Calendar.getInstance()
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
-
-        val dpd = DatePickerDialog(requireContext(), { _, year, monthOfYear, dayOfMonth ->
-            selectedDate = LocalDate.of(year, monthOfYear + 1, dayOfMonth)
-            updateDateEditText()
-        }, year, month, day)
-        dpd.show()
-    }
-
-    private fun showTimePickerDialog(isStartTime: Boolean) {
-        val calendar = Calendar.getInstance()
-        val hour = calendar.get(Calendar.HOUR_OF_DAY)
-        val minute = calendar.get(Calendar.MINUTE)
-
-        val tpd = TimePickerDialog(requireContext(), { _, hourOfDay, minute ->
-            val time = LocalTime.of(hourOfDay, minute)
-            val formattedTime = time.format(DateTimeFormatter.ofPattern("HH:mm"))
-            if (isStartTime) {
-                selectedStartTime = time
-                startTimeEditText.hint = formattedTime
-            } else {
-                selectedEndTime = time
-                endTimeEditText.hint = formattedTime
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 999)
             }
-        }, hour, minute, true)
-        tpd.show()
+        }
+
+        noteId?.let {
+            viewModel.getNoteById(it).observe(viewLifecycleOwner) { note ->
+                eventNameEditText.setText(note.eventName)
+                noteTextEditText.setText(note.noteText)
+                dateEditText.setText(note.date.toString())
+                selectedDate = note.date
+                selectedStartTime = note.startTime
+                selectedEndTime = note.endTime
+                startTimeEditText.setText(note.startTime?.format(DateTimeFormatter.ofPattern("HH:mm")) ?: "")
+                endTimeEditText.setText(note.endTime?.format(DateTimeFormatter.ofPattern("HH:mm")) ?: "")
+                reminderSwitch.isChecked = note.reminderEnabled
+                when (note.category) {
+                    "Brainstorm" -> categoryChipGroup.check(R.id.brainstormChip)
+                    "Design" -> categoryChipGroup.check(R.id.designChip)
+                    "Workout" -> categoryChipGroup.check(R.id.workoutChip)
+                }
+            }
+        }
+
+        createEventButton.setOnClickListener {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.SCHEDULE_EXACT_ALARM)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.SCHEDULE_EXACT_ALARM)) {
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("Exact Alarm Permission Required")
+                        .setMessage("This app needs exact alarm permission to set reminders accurately.")
+                        .setPositiveButton("OK") { _, _ -> requestExactAlarmPermission() }
+                        .setNegativeButton("Cancel", null).show()
+                } else requestExactAlarmPermission()
+            } else createEvent()
+        }
     }
 
     private fun updateDateEditText() {
-        dateEditText.hint = selectedDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
+        dateEditText.setText(selectedDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
+    }
+
+    private fun showDatePickerDialog() {
+        val now = Calendar.getInstance()
+        val dpd = DatePickerDialog(requireContext(), { _, y, m, d ->
+            selectedDate = LocalDate.of(y, m + 1, d)
+            updateDateEditText()
+        }, now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH))
+        dpd.show()
+    }
+
+    private fun showTimePickerDialog(isStart: Boolean) {
+        val now = Calendar.getInstance()
+        val tpd = TimePickerDialog(requireContext(), { _, h, m ->
+            val time = LocalTime.of(h, m)
+            if (isStart) {
+                selectedStartTime = time
+                startTimeEditText.setText(time.format(DateTimeFormatter.ofPattern("HH:mm")))
+            } else {
+                selectedEndTime = time
+                endTimeEditText.setText(time.format(DateTimeFormatter.ofPattern("HH:mm")))
+            }
+        }, now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), true)
+        tpd.show()
     }
 
     private fun createEvent() {
-        val eventName = eventNameEditText.text.toString()
-        val noteText = noteTextEditText.text.toString()
-        val categoryId = categoryChipGroup.checkedChipId
-        val category = when (categoryId) {
+        val name = eventNameEditText.text.toString()
+        val text = noteTextEditText.text.toString()
+        val category = when (categoryChipGroup.checkedChipId) {
             R.id.brainstormChip -> "Brainstorm"
             R.id.designChip -> "Design"
             R.id.workoutChip -> "Workout"
             else -> "Other"
         }
-
-        val reminderEnabled = reminderSwitch.isChecked
+        val remind = reminderSwitch.isChecked
 
         val note = Note(
-            eventName = eventName,
-            noteText = noteText,
+            id = noteId ?: 0,
+            eventName = name,
+            noteText = text,
             date = selectedDate,
             startTime = selectedStartTime,
             endTime = selectedEndTime,
             category = category,
-            reminderEnabled = reminderEnabled
+            reminderEnabled = remind
         )
 
-        viewModel.insertNote(note)
+        if (noteId == null || noteId == 0L) viewModel.insertNote(note)
+        else viewModel.updateNote(note)
+
+        scheduleNotification(name, selectedDate, selectedStartTime, remind, noteId ?: System.currentTimeMillis())
+        viewModel.setSelectedDate(selectedDate)
         dismiss()
+    }
+
+    private fun scheduleNotification(eventName: String, date: LocalDate, time: LocalTime?, enabled: Boolean, noteId: Long) {
+        if (!enabled) return
+
+        val intent = Intent(requireContext(), NotificationReceiver::class.java)
+        intent.putExtra("eventName", eventName)
+        intent.putExtra("noteId", noteId)
+
+        val pendingIntent = PendingIntent.getBroadcast(requireContext(), (noteId % Int.MAX_VALUE).toInt(), intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+
+        val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val ldt = time?.let { LocalDateTime.of(date, it) } ?: LocalDateTime.of(date, LocalTime.of(9, 0))
+        val triggerTime = ldt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+
+        if (triggerTime > System.currentTimeMillis()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && alarmManager.canScheduleExactAlarms()) {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
+            } else {
+                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
+            }
+        }
+    }
+
+    private fun requestExactAlarmPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.SCHEDULE_EXACT_ALARM), EXACT_ALARM_PERMISSION_CODE)
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == EXACT_ALARM_PERMISSION_CODE && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            createEvent()
+        } else {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            intent.data = Uri.fromParts("package", requireContext().packageName, null)
+            startActivity(intent)
+        }
     }
 
     companion object {
         fun newInstance(selectedDate: LocalDate? = null): AddNoteBottomSheetDialogFragment {
-            val fragment = AddNoteBottomSheetDialogFragment()
-            val args = Bundle()
-            args.putString("selectedDate", selectedDate?.toString())
-            fragment.arguments = args
-            return fragment
+            val f = AddNoteBottomSheetDialogFragment()
+            f.arguments = Bundle().apply { putString("selectedDate", selectedDate?.toString()) }
+            return f
+        }
+
+        fun newInstance(noteId: Long): AddNoteBottomSheetDialogFragment {
+            val f = AddNoteBottomSheetDialogFragment()
+            f.arguments = Bundle().apply { putLong("noteId", noteId) }
+            return f
         }
     }
 }

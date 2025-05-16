@@ -1,6 +1,7 @@
 package com.example.calendarik
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,34 +19,39 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _notes.addSource(_selectedDate) { date ->
             viewModelScope.launch {
                 noteDao.getNotesForDate(date).collect { notes ->
-                    _notes.value = notes
+                    _notes.postValue(notes)
                 }
             }
-
         }
     }
 
-
     fun setSelectedDate(date: LocalDate) {
-        _selectedDate.value = date
+        _selectedDate.postValue(date)
     }
 
     fun insertNote(note: Note) {
         viewModelScope.launch(Dispatchers.IO) {
-            noteDao.insert(note)
+            val id = noteDao.insert(note)
+            Log.d("MainViewModel", "insertNote: note=$note, id=$id")
         }
     }
 
     fun updateNote(note: Note) {
         viewModelScope.launch(Dispatchers.IO) {
-            noteDao.update(note)
+            val rows = noteDao.update(note)
+            Log.d("MainViewModel", "updateNote: note=$note, rows=$rows")
         }
     }
 
     fun deleteNote(note: Note) {
         viewModelScope.launch(Dispatchers.IO) {
-            noteDao.delete(note)
+            val rows = noteDao.delete(note)
+            Log.d("MainViewModel", "deleteNote: note=$note, rows=$rows")
         }
+    }
+
+    fun getNoteById(id: Long): LiveData<Note> {
+        return noteDao.getNoteById(id).asLiveData()
     }
 
     fun getAllNotesForMonth(date: LocalDate): LiveData<List<Note>> {
@@ -64,4 +70,3 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 }
-

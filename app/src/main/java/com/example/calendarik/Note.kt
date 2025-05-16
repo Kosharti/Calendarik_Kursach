@@ -14,5 +14,5 @@ data class Note(
     val startTime: LocalTime?,
     val endTime: LocalTime?,
     val category: String,
-    val reminderEnabled: Boolean = false
+    val reminderEnabled: Boolean
 )
