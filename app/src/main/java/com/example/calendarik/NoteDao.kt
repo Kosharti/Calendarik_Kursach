@@ -12,12 +12,18 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE date BETWEEN :startDate AND :endDate ORDER BY startTime")
     fun getNotesForMonth(startDate: LocalDate, endDate: LocalDate): Flow<List<Note>>
 
-    @Insert
-    fun insert(note: Note): Long
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(note: Note)
 
     @Update
     fun update(note: Note): Int
 
     @Delete
     fun delete(note: Note): Int
+
+    @Query("SELECT * FROM notes ORDER BY date ASC")
+    fun getAlphabetizedNotes(): Flow<List<Note>>
+
+    @Query("SELECT * FROM notes WHERE id = :id")
+    fun getNoteById(id: Long): Flow<Note>  // Добавлено
 }

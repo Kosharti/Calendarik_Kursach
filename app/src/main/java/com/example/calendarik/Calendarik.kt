@@ -1,6 +1,7 @@
 package com.example.calendarik
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -17,7 +18,7 @@ import java.time.format.DateTimeFormatter
 import java.util.ArrayList
 import java.util.Locale
 
-class Calendarik : AppCompatActivity() {
+class Calendarik : AppCompatActivity(), NoteActionListener {
 
     private lateinit var monthYearText: TextView
     private lateinit var calendarRecyclerView: RecyclerView
@@ -41,9 +42,7 @@ class Calendarik : AppCompatActivity() {
         selectedDate = LocalDate.now()
         setMonthView()
 
-        notesAdapter = NoteAdapter { note ->
-            viewModel.deleteNote(note)
-        }
+        notesAdapter = NoteAdapter(this) // Pass the activity as the listener
         notesRecyclerView.adapter = notesAdapter
         notesRecyclerView.layoutManager = LinearLayoutManager(this)
         notesRecyclerView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
@@ -60,8 +59,7 @@ class Calendarik : AppCompatActivity() {
         }
 
         val nextButton: ImageView = findViewById(R.id.nextButton)
-        nextButton.setOnClickListener {
-            selectedDate = selectedDate.plusMonths(1)
+        nextButton.setOnClickListener {            selectedDate = selectedDate.plusMonths(1)
             viewModel.setSelectedDate(selectedDate)
             setMonthView()
         }
@@ -77,12 +75,13 @@ class Calendarik : AppCompatActivity() {
         monthYearText.text = monthYearFromDate(selectedDate)
         val daysInMonth = daysInMonthArray(selectedDate)
         viewModel.getAllNotesForMonth(selectedDate).observe(this, Observer { notes ->
-            val notesMap = notes.groupBy { it.date }
+            val notesMap = notes.groupBy { it.date as LocalDate? } // Приводим LocalDate к LocalDate?
 
             val adapter = CalendarAdapter(daysInMonth, selectedDate, notesMap) { clickedDate ->
                 selectedDate = clickedDate
                 viewModel.setSelectedDate(selectedDate)
             }
+
             val layoutManager = GridLayoutManager(this, 7)
             calendarRecyclerView.layoutManager = layoutManager
             calendarRecyclerView.adapter = adapter
@@ -127,5 +126,14 @@ class Calendarik : AppCompatActivity() {
         return date.format(formatter)
     }
 
-}
+    override fun onEdit(note: Note) {
+        Log.d("Calendarik", "Edit note with ID: ${note.id}")
+        val bottomSheetDialogFragment = AddNoteBottomSheetDialogFragment.newInstance(note.id)
+        bottomSheetDialogFragment.show(supportFragmentManager, bottomSheetDialogFragment.tag)
+    }
 
+    override fun onDelete(note: Note) {
+        Log.d("Calendarik", "Delete note with ID: ${note.id}")
+        viewModel.deleteNote(note)
+    }
+}

@@ -25,11 +25,11 @@
             android:textColor="#8F9BB3"
             android:fontFamily="@font/sfuitext_medium"/>
 
-        <ImageView
-            android:id="@+id/deleteNoteButton"
+        <ImageButton
+            android:id="@+id/optionsButton"
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:src="@drawable/ic_delete"
+            android:src="@drawable/ic_more_vert"
             android:layout_gravity="end"
             android:background="?android:attr/selectableItemBackground"
             android:clickable="true"

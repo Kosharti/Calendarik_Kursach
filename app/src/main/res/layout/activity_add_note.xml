@@ -22,48 +22,53 @@
             android:textColor="#222B45"
             android:fontFamily="@font/sfuitext_medium" />
 
-        <com.google.android.material.textfield.TextInputLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="#8F9BB3"
-            android:fontFamily="@font/sfuitext_regular"
             android:background="@drawable/shape_1"
             app:hintEnabled="true">
 
-            <com.google.android.material.textfield.TextInputEditText
+            <EditText
                 android:id="@+id/eventNameEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_gravity="center"
                 android:hint="Event Name*"
                 android:textColorHint="#8F9BB3"
                 android:inputType="text"
                 android:textColor="#222B45"
-                android:maxLength="20"/>
+                android:gravity="top|start"
+                android:maxLength="20"
+                android:fontFamily="@font/sfuitext_regular"
+                android:background="@android:color/transparent"/>
 
-        </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="#8F9BB3"
-            android:fontFamily="@font/sfuitext_regular"
             android:layout_marginTop="20dp"
-            android:background="@drawable/shape_2"
-            app:hintEnabled="true">
+            android:background="@drawable/shape_1">
 
-            <com.google.android.material.textfield.TextInputEditText
+            <EditText
                 android:id="@+id/noteTextEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="top|start"
+                android:textColor="#8F9BB3"
                 android:hint="Type the note here..."
                 android:textColorHint="#8F9BB3"
                 android:inputType="textMultiLine"
                 android:minLines="3"
-                android:textColor="#222B45"
-                android:maxLength="40"/>
+                android:maxLength="30"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="5dp"
+                android:fontFamily="@font/sfuitext_regular"
+                android:background="@android:color/transparent"
+                />
 
-        </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -80,7 +85,7 @@
                 android:fontFamily="@font/sfuitext_regular"
                 android:hint="Date"
                 android:textSize="15dp"
-                android:layout_marginTop="14dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginStart="9dp"
                 android:background="@android:color/transparent"/>
 

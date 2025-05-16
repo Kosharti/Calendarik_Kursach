@@ -48,6 +48,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun getNoteById(id: Long): LiveData<Note> {  // Добавлено
+        return noteDao.getNoteById(id).asLiveData()
+    }
+
     fun getAllNotesForMonth(date: LocalDate): LiveData<List<Note>> {
         val startOfMonth = date.withDayOfMonth(1)
         val endOfMonth = date.withDayOfMonth(date.lengthOfMonth())
