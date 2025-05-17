@@ -47,9 +47,7 @@ class CalendarAdapter(
             }
 
             holder.itemView.setOnClickListener {
-                if (date != null) {
-                    onItemClick(date)
-                }
+                onItemClick(date)
             }
         }
     }

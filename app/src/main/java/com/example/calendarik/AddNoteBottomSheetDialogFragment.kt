@@ -87,7 +87,6 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
         endTimeEditText.setOnClickListener { showTimePickerDialog(false) }
         endTimeButton.setOnClickListener { showTimePickerDialog(false) }
 
-        // Add TextWatchers
         dateEditText.addTextChangedListener(DateTextWatcher(dateEditText))
         startTimeEditText.addTextChangedListener(TimeTextWatcher(startTimeEditText))
         endTimeEditText.addTextChangedListener(TimeTextWatcher(endTimeEditText))
@@ -145,7 +144,6 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
         val reminderEnabled = reminderSwitch.isChecked
 
         if (noteId == null) {
-            // Создаем новую заметку
             val note = Note(
                 eventName = eventName,
                 noteText = noteText,
@@ -157,7 +155,6 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
             )
             viewModel.insertNote(note)
         } else {
-            // Обновляем существующую заметку
             val note = Note(
                 id = noteId!!,
                 eventName = eventName,
@@ -178,11 +175,11 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
         if (reminderEnabled) {
             val intent = Intent(requireContext(), NotificationReceiver::class.java)
             intent.putExtra("eventName", eventName)
-            intent.putExtra("noteId", noteId?.toInt() ?: Random().nextInt()) // Pass noteId
+            intent.putExtra("noteId", noteId?.toInt() ?: Random().nextInt())
 
             val pendingIntent = PendingIntent.getBroadcast(
                 requireContext(),
-                noteId?.toInt() ?: Random().nextInt(), // Unique ID for each notification
+                noteId?.toInt() ?: Random().nextInt(),
                 intent,
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
@@ -196,7 +193,7 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
                 calendar.set(Calendar.MINUTE, time.minute)
                 calendar.set(Calendar.SECOND, 0)
             } else {
-                calendar.set(Calendar.HOUR_OF_DAY, 9) // Default hour
+                calendar.set(Calendar.HOUR_OF_DAY, 9)
                 calendar.set(Calendar.MINUTE, 0)
                 calendar.set(Calendar.SECOND, 0)
             }
@@ -242,7 +239,6 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
         }
     }
 
-    // TextWatchers for Date and Time input
     private class DateTextWatcher(private val editText: EditText) : TextWatcher {
         private var updating = false
 
@@ -259,7 +255,7 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
             if (formattedText != text) {
                 editText.setText(formattedText)
-                editText.setSelection(formattedText.length) // Move cursor to the end
+                editText.setSelection(formattedText.length)
             }
 
             updating = false

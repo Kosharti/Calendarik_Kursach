@@ -13,7 +13,7 @@ interface NoteDao {
     fun getNotesForMonth(startDate: LocalDate, endDate: LocalDate): Flow<List<Note>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(note: Note)
+    suspend fun insert(note: Note) : Long
 
     @Update
     fun update(note: Note): Int
@@ -25,5 +25,5 @@ interface NoteDao {
     fun getAlphabetizedNotes(): Flow<List<Note>>
 
     @Query("SELECT * FROM notes WHERE id = :id")
-    fun getNoteById(id: Long): Flow<Note>  // Добавлено
+    fun getNoteById(id: Long): Flow<Note>
 }

@@ -32,7 +32,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun insertNote(note: Note) {
         viewModelScope.launch(Dispatchers.IO) {
-            noteDao.insert(note)
+            val id = noteDao.insert(note)
         }
     }
 
@@ -48,7 +48,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun getNoteById(id: Long): LiveData<Note> {  // Добавлено
+    fun getNoteById(id: Long): LiveData<Note> {
         return noteDao.getNoteById(id).asLiveData()
     }
 

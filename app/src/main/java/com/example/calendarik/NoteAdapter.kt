@@ -43,7 +43,7 @@ class NoteAdapter(private val listener: NoteActionListener) : ListAdapter<Note, 
 
             optionsButton.setOnClickListener { view ->
                 val popupMenu = PopupMenu(itemView.context, view)
-                popupMenu.menuInflater.inflate(R.menu.note_menu, popupMenu.menu) // Создайте menu/note_menu.xml
+                popupMenu.menuInflater.inflate(R.menu.note_menu, popupMenu.menu)
                 popupMenu.setOnMenuItemClickListener { item ->
                     when (item.itemId) {
                         R.id.edit_note -> {

@@ -10,15 +10,15 @@ class NotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val eventName = intent.getStringExtra("eventName") ?: "Event"
 
-        val notification = NotificationCompat.Builder(context, "event_channel") // Замените "event_channel" на ваш ID канала
-            .setSmallIcon(R.drawable.ic_notifications) // Замените на иконку уведомления
+        val notification = NotificationCompat.Builder(context, "event_channel")
+            .setSmallIcon(R.drawable.ic_notifications)
             .setContentTitle("Event Reminder")
             .setContentText("Don't forget about $eventName!")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setAutoCancel(true) // Automatically removes the notification when the user presses it
+            .setAutoCancel(true)
             .build()
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(intent.getIntExtra("noteId", 0), notification) // Уникальный ID уведомления
+        notificationManager.notify(intent.getIntExtra("noteId", 0), notification)
     }
 }

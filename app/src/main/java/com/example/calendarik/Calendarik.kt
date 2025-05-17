@@ -42,7 +42,7 @@ class Calendarik : AppCompatActivity(), NoteActionListener {
         selectedDate = LocalDate.now()
         setMonthView()
 
-        notesAdapter = NoteAdapter(this) // Pass the activity as the listener
+        notesAdapter = NoteAdapter(this)
         notesRecyclerView.adapter = notesAdapter
         notesRecyclerView.layoutManager = LinearLayoutManager(this)
         notesRecyclerView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
@@ -75,7 +75,7 @@ class Calendarik : AppCompatActivity(), NoteActionListener {
         monthYearText.text = monthYearFromDate(selectedDate)
         val daysInMonth = daysInMonthArray(selectedDate)
         viewModel.getAllNotesForMonth(selectedDate).observe(this, Observer { notes ->
-            val notesMap = notes.groupBy { it.date as LocalDate? } // Приводим LocalDate к LocalDate?
+            val notesMap = notes.groupBy { it.date as LocalDate? }
 
             val adapter = CalendarAdapter(daysInMonth, selectedDate, notesMap) { clickedDate ->
                 selectedDate = clickedDate
