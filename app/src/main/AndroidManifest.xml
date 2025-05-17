@@ -29,7 +29,6 @@
         android:name=".Calendarik"
         android:exported="false"/>
 
-    <!-- Register the NotificationReceiver -->
     <receiver
         android:name=".NotificationReceiver"
         android:enabled="true"
