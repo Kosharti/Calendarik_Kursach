@@ -28,14 +28,32 @@ class CalendarAdapter(
         val ringsContainer: LinearLayout = itemView.findViewById(R.id.ringsContainer)
 
         fun clearBackground() {
-            itemView.setBackgroundColor(Color.TRANSPARENT)
+            dayOfMonth.background = null
             dayOfMonth.setTextColor(Color.BLACK)
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CalendarViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.calendar_cell, parent, false)
-        return CalendarViewHolder(view)
+        val holder = CalendarViewHolder(view)
+
+        holder.dayOfMonth.setOnClickListener {
+            val position = holder.adapterPosition
+            if (position != RecyclerView.NO_POSITION) {
+                val date = days[position]
+                if (date != null) {
+                    if (date.monthValue != selectedDate.monthValue) {
+                        onMonthChange(date)
+                    } else {
+                        selectedPosition = position
+                        notifyDataSetChanged()
+                        onItemClick(date)
+                    }
+                }
+            }
+        }
+
+        return holder
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -45,61 +63,51 @@ class CalendarAdapter(
 
         if (date == null) {
             holder.dayOfMonth.text = ""
-
             holder.itemView.isEnabled = false
             holder.dayOfMonth.setTextColor(Color.LTGRAY)
         } else {
             holder.dayOfMonth.text = date.dayOfMonth.toString()
             holder.itemView.isEnabled = true
 
-            holder.dayOfMonth.setTextColor(if (date.monthValue == selectedDate.monthValue) Color.BLACK else Color.LTGRAY)
+            // Устанавливаем цвет текста в зависимости от месяца
+            holder.dayOfMonth.setTextColor(
+                if (date.monthValue == selectedDate.monthValue) Color.BLACK else Color.LTGRAY
+            )
 
-
-            // 🟣 Показываем иконки категорий под числом
+            // Отображаем кольца
             holder.ringsContainer.removeAllViews()
             val notesForDay = notesMap[date]
-            if (notesForDay.isNullOrEmpty()) {
-                holder.ringsContainer.visibility = View.GONE
-            } else {
-                holder.ringsContainer.visibility = View.VISIBLE
+            if (!notesForDay.isNullOrEmpty()) {
                 notesForDay.forEach { note ->
-                    val imageView = ImageView(holder.itemView.context)
-                    imageView.layoutParams = LinearLayout.LayoutParams(16, 16).apply {
-                        setMargins(2, 0, 2, 0)
+                    val imageView = ImageView(holder.itemView.context).apply {
+                        layoutParams = LinearLayout.LayoutParams(16, 16).apply {
+                            setMargins(2, 0, 2, 0)
+                        }
+                        setImageResource(
+                            when (note.category.trim().lowercase()) {
+                                "brainstorm" -> R.drawable.oval_1
+                                "design" -> R.drawable.oval_2
+                                "workout" -> R.drawable.oval_3
+                                else -> R.drawable.oval_1
+                            }
+                        )
                     }
-                    val icon = when (note.category.trim().lowercase()) {
-                        "brainstorm" -> R.drawable.oval_1
-                        "design" -> R.drawable.oval_2
-                        "workout" -> R.drawable.oval_3
-                        else -> R.drawable.oval_1
-                    }
-                    imageView.setImageResource(icon)
                     holder.ringsContainer.addView(imageView)
                 }
             }
 
-            holder.itemView.setOnClickListener {
-                if (date.monthValue != selectedDate.monthValue) {
-                    onMonthChange(date)
-                } else {
-                    val previousSelectedPosition = selectedPosition
-                    selectedPosition = holder.adapterPosition
+            // Обработка клика
 
-                    if (previousSelectedPosition != RecyclerView.NO_POSITION) {
-                        notifyItemChanged(previousSelectedPosition)
-                    }
-                    notifyItemChanged(selectedPosition)
 
-                    onItemClick(date)
-                }
-            }
-
+            // Выделение выбранного дня
             if (position == selectedPosition) {
-                holder.itemView.background = holder.itemView.context.getDrawable(R.drawable.rounded_corner_background)
+                holder.dayOfMonth.background = holder.itemView.context.getDrawable(R.drawable.rounded_corner_background)
                 holder.dayOfMonth.setTextColor(Color.WHITE)
             } else {
-                holder.itemView.background = null
-                holder.itemView.setBackgroundColor(Color.TRANSPARENT)
+                holder.dayOfMonth.background = null
+                holder.dayOfMonth.setTextColor(
+                    if (date.monthValue == selectedDate.monthValue) Color.BLACK else Color.LTGRAY
+                )
             }
         }
     }

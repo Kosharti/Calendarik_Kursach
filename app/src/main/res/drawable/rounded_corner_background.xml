@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <solid android:color="#735BF2" />  <!-- Цвет заливки, можно изменить -->
-    <corners android:radius="100dp" /> <!-- Радиус скругления углов -->
+    <solid android:color="#735BF2" />
+    <size android:width="30dp" android:height="30dp" />
+    <corners android:radius="10dp" />
 </shape>

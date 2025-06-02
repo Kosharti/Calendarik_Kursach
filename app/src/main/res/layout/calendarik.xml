@@ -198,6 +198,7 @@
         android:layout_marginBottom="-10dp"
         android:src="@drawable/shape"
         app:backgroundTint="@color/purple_500"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Fab.Circle"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

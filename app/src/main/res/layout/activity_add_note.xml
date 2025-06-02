@@ -108,12 +108,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="20dp">
+            android:layout_marginTop="20dp"
+            android:weightSum="3">
             <LinearLayout
-                android:layout_width="170dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1.4"
                 android:orientation="horizontal"
                 android:layout_marginTop="8dp"
+
                 android:background="@drawable/shape_time">
 
                 <EditText
@@ -131,7 +134,7 @@
                 <Space
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    android:layout_weight="0.3" />
 
                 <ImageButton
                     android:id="@+id/startTimeButton"
@@ -148,11 +151,12 @@
             <Space
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="0.2" />
 
             <LinearLayout
-                android:layout_width="180dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1.4"
                 android:orientation="horizontal"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/shape_time">
@@ -166,13 +170,14 @@
                     android:textColor="#8F9BB3"
                     android:fontFamily="@font/sfuitext_regular"
                     android:textSize="15dp"
+                    android:layout_marginStart="10dp"
                     android:hint="End Time"
                     android:background="@android:color/transparent"/>
 
                 <Space
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    android:layout_weight="0.3" />
 
                 <ImageButton
                     android:id="@+id/endTimeButton"
@@ -199,7 +204,9 @@
                 android:layout_height="wrap_content"
                 android:textColor="#222B45"
                 android:fontFamily="@font/sfuitext_regular"
-                android:text="Reminds me" />
+                android:text="Reminds me"
+                android:textSize="15dp"
+                android:layout_gravity="center_vertical"/>
 
             <Space
                 android:layout_width="wrap_content"
@@ -221,42 +228,63 @@
             android:textSize="20dp"
             android:layout_marginTop="24dp"/>
 
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/categoryChipGroup"
+        <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:singleSelection="true"
-            app:selectionRequired="true"
-            app:singleLine="true">
+            android:scrollbars="none"
+            >
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/brainstormChip"
-                android:layout_width="wrap_content"
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/categoryChipGroup"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Brainstorm"
-                app:chipIcon="@drawable/oval_1"
-                app:chipBackgroundColor="@color/purple_light"
-                android:fontFamily="@font/sfuitext_regular"/>
+                app:singleSelection="true"
+                app:selectionRequired="true"
+                app:singleLine="true"
+                app:chipSpacing="8dp">
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/designChip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Design"
-                app:chipIcon="@drawable/oval_2"
-                app:chipBackgroundColor="@color/green_light"
-                android:fontFamily="@font/sfuitext_regular"/>
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/brainstormChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Brainstorm"
+                    app:chipIcon="@drawable/oval_1"
+                    app:chipBackgroundColor="@color/purple_light"
+                    android:fontFamily="@font/sfuitext_regular"
+                    app:chipStrokeWidth="0dp"/>
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/workoutChip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Workout"
-                app:chipIcon="@drawable/oval_3"
-                app:chipBackgroundColor="@color/blue_light"
-                android:fontFamily="@font/sfuitext_regular"/>
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/designChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Design"
+                    app:chipIcon="@drawable/oval_2"
+                    app:chipBackgroundColor="@color/green_light"
+                    android:fontFamily="@font/sfuitext_regular"
+                    app:chipStrokeWidth="0dp"/>
 
-        </com.google.android.material.chip.ChipGroup>
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/workoutChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Workout"
+                    app:chipIcon="@drawable/oval_3"
+                    app:chipBackgroundColor="@color/blue_light"
+                    android:fontFamily="@font/sfuitext_regular"
+                    app:chipStrokeWidth="0dp"/>
+
+            </com.google.android.material.chip.ChipGroup>
+
+        </HorizontalScrollView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#735BF2"
+            android:fontFamily="@font/sfuitext_semibold"
+            android:text="+ Add new"
+            android:textSize="15dp"
+            android:layout_marginTop="4dp"/>
 
         <Button
             android:id="@+id/createEventButton"

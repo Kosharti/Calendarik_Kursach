@@ -17,4 +17,5 @@
     <color name="switch_track_checked">#6750A4</color>
     <color name="switch_track_unchecked">#E7E0EC</color>
     <color name="switch_thumb">#FFFFFF</color>
+    <color name="purple_500_20">#80735BF2</color>
 </resources>

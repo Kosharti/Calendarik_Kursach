@@ -6,4 +6,7 @@
         <item name="chipIconEnabled">true</item>
         <item name="chipIconSize">20dp</item>
     </style>
+    <style name="ShapeAppearanceOverlay.Fab.Circle" parent="">
+        <item name="cornerSize">50%</item>
+    </style>
 </resources>
