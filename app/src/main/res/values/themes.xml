@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.Calendarik" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Base.Theme.Calendarik" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <item name="colorPrimary">@color/purple_500</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>
@@ -14,5 +14,9 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="Theme.Calendarik" parent="Base.Theme.Calendarik" />
+    <style name="Theme.Calendarik" parent="Base.Theme.Calendarik">
+        <!-- Принудительно применяем стиль MD3 для всех Switch -->
+        <item name="switchStyle">@style/Widget.Material3.CompoundButton.Switch</item>
+        <item name="materialSwitchStyle">@style/Widget.Material3.CompoundButton.Switch</item>
+    </style>
 </resources>

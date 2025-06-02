@@ -19,7 +19,9 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import com.google.android.material.switchmaterial.SwitchMaterial
 import java.time.*
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -31,7 +33,7 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private lateinit var dateEditText: EditText
     private lateinit var startTimeEditText: EditText
     private lateinit var endTimeEditText: EditText
-    private lateinit var reminderSwitch: Switch
+    private lateinit var reminderSwitch: SwitchMaterial
     private lateinit var categoryChipGroup: ChipGroup
     private lateinit var createEventButton: Button
     private lateinit var selectedDate: LocalDate
@@ -68,6 +70,33 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
         categoryChipGroup = view.findViewById(R.id.categoryChipGroup)
         createEventButton = view.findViewById(R.id.createEventButton)
 
+        val brainstormChip = view.findViewById<Chip>(R.id.brainstormChip)
+
+        val designChip = view.findViewById<Chip>(R.id.designChip)
+
+        val workoutChip = view.findViewById<Chip>(R.id.workoutChip)
+
+        brainstormChip.setOnClickListener {
+            categoryChipGroup.check(R.id.brainstormChip)
+            brainstormChip.setChipBackgroundColorResource(R.color.purple_light)
+            brainstormChip.chipIcon = ContextCompat.getDrawable(requireContext(), R.drawable.oval_1)
+            Log.d("ChipDebug", "Brainstorm clicked! Current checked: ${categoryChipGroup.checkedChipId}")
+        }
+
+        designChip.setOnClickListener {
+            categoryChipGroup.check(R.id.designChip)
+            designChip.setChipBackgroundColorResource(R.color.green_light)
+            designChip.chipIcon = ContextCompat.getDrawable(requireContext(), R.drawable.oval_2)
+            Log.d("ChipDebug", "Design clicked! Current checked: ${categoryChipGroup.checkedChipId}")
+        }
+
+        workoutChip.setOnClickListener {
+            categoryChipGroup.check(R.id.workoutChip)
+            workoutChip.setChipBackgroundColorResource(R.color.blue_light)
+            workoutChip.chipIcon = ContextCompat.getDrawable(requireContext(), R.drawable.oval_3)
+            Log.d("ChipDebug", "Workout clicked! Current checked: ${categoryChipGroup.checkedChipId}")
+        }
+
         val dateButton: ImageButton = view.findViewById(R.id.dateButton)
         val startTimeButton: ImageButton = view.findViewById(R.id.startTimeButton)
         val endTimeButton: ImageButton = view.findViewById(R.id.endTimeButton)
@@ -92,19 +121,41 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
         noteId?.let {
             viewModel.getNoteById(it).observe(viewLifecycleOwner) { note ->
-                eventNameEditText.setText(note.eventName)
-                noteTextEditText.setText(note.noteText)
-                dateEditText.setText(note.date.toString())
-                selectedDate = note.date
-                selectedStartTime = note.startTime
-                selectedEndTime = note.endTime
-                startTimeEditText.setText(note.startTime?.format(DateTimeFormatter.ofPattern("HH:mm")) ?: "")
-                endTimeEditText.setText(note.endTime?.format(DateTimeFormatter.ofPattern("HH:mm")) ?: "")
-                reminderSwitch.isChecked = note.reminderEnabled
-                when (note.category) {
-                    "Brainstorm" -> categoryChipGroup.check(R.id.brainstormChip)
-                    "Design" -> categoryChipGroup.check(R.id.designChip)
-                    "Workout" -> categoryChipGroup.check(R.id.workoutChip)
+                if (note != null) {
+                    eventNameEditText.setText(note.eventName)
+                    noteTextEditText.setText(note.noteText)
+                    dateEditText.setText(note.date.toString())
+                    selectedDate = note.date
+                    selectedStartTime = note.startTime
+                    selectedEndTime = note.endTime
+                    startTimeEditText.setText(note.startTime?.format(DateTimeFormatter.ofPattern("HH:mm")) ?: "")
+                    endTimeEditText.setText(note.endTime?.format(DateTimeFormatter.ofPattern("HH:mm")) ?: "")
+                    reminderSwitch.isChecked = note.reminderEnabled
+
+                    val categoryLower = note.category.trim().lowercase(Locale.getDefault())
+                    Log.d("AddNoteBottomSheet", "Loading note category: '$categoryLower'")
+                    when (categoryLower) {
+                        "brainstorm" -> {
+                            categoryChipGroup.check(R.id.brainstormChip)
+                            Log.d("AddNoteBottomSheet", "Selected brainstorm chip")
+                        }
+                        "design" -> {
+                            categoryChipGroup.check(R.id.designChip)
+                            Log.d("AddNoteBottomSheet", "Selected design chip")
+                        }
+                        "workout" -> {
+                            categoryChipGroup.check(R.id.workoutChip)
+                            Log.d("AddNoteBottomSheet", "Selected workout chip")
+                        }
+                        else -> {
+                            categoryChipGroup.clearCheck()
+                            Log.w("AddNoteBottomSheet", "Unknown category: '$categoryLower'")
+                        }
+                    }
+                    Log.d("AddNoteBottomSheet", "Note category: '${note.category}', lower: '$categoryLower'")
+                } else {
+                    // Можно добавить логи или показать сообщение об ошибке
+                    Log.w("AddNoteBottomSheet", "Note with id $it not found")
                 }
             }
         }
@@ -156,13 +207,40 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private fun createEvent() {
         val name = eventNameEditText.text.toString()
         val text = noteTextEditText.text.toString()
-        val category = when (categoryChipGroup.checkedChipId) {
-            R.id.brainstormChip -> "Brainstorm"
-            R.id.designChip -> "Design"
-            R.id.workoutChip -> "Workout"
-            else -> "Other"
+
+        Log.d("AddNoteBottomSheet", "Checked Chip ID: ${categoryChipGroup.checkedChipId}")
+        Log.d("AddNoteBottomSheet", "All Chip IDs: brainstorm=${R.id.brainstormChip}, design=${R.id.designChip}, workout=${R.id.workoutChip}")
+
+        val selectedChipId = categoryChipGroup.checkedChipId
+        Log.d("AddNoteBottomSheet", "Selected Chip ID: $selectedChipId")
+
+        val category = when (selectedChipId) {
+            R.id.brainstormChip -> {
+                Log.d("AddNoteBottomSheet", "Selected: brainstorm")
+                "brainstorm"
+            }
+            R.id.designChip -> {
+                Log.d("AddNoteBottomSheet", "Selected: design")
+                "design"
+            }
+            R.id.workoutChip -> {
+                Log.d("AddNoteBottomSheet", "Selected: workout")
+                "workout"
+            }
+            else -> {
+                Log.w("AddNoteBottomSheet", "No chip selected! Defaulting to 'other'")
+                "other"
+            }
         }
+
+        Log.d("AddNoteBottomSheet", "Final category: $category")
+
         val remind = reminderSwitch.isChecked
+
+        Log.d("AddNoteBottomSheet", "Event Name: $name")
+        Log.d("AddNoteBottomSheet", "Note Text: $text")
+        Log.d("AddNoteBottomSheet", "Category: $category")
+        Log.d("AddNoteBottomSheet", "Reminder: $remind")
 
         val note = Note(
             id = noteId ?: 0,

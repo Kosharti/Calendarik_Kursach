@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="ChipChoiceStyle" parent="Widget.MaterialComponents.Chip.Choice">
+        <item name="chipBackgroundColor">@color/chip_background_selector</item>
+
+        <item name="chipIconEnabled">true</item>
+        <item name="chipIconSize">20dp</item>
+    </style>
+</resources>

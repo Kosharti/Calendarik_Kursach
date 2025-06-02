@@ -25,5 +25,5 @@ interface NoteDao {
     fun getAlphabetizedNotes(): Flow<List<Note>>
 
     @Query("SELECT * FROM notes WHERE id = :id")
-    fun getNoteById(id: Long): Flow<Note>
+    fun getNoteById(id: Long): Flow<Note?>
 }

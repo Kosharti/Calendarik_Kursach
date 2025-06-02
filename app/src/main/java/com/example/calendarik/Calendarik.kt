@@ -69,36 +69,41 @@ class Calendarik : AppCompatActivity(), NoteActionListener {
             bottomSheetDialogFragment.show(supportFragmentManager, bottomSheetDialogFragment.tag)
         }
 
-    }
-
-    private fun setMonthView() {
-        monthYearText.text = monthYearFromDate(selectedDate)
-        val daysInMonth = daysInMonthArray(selectedDate)
-
-        viewModel.getAllNotesForMonth(selectedDate).observe(this, Observer { notes ->
+        viewModel.getAllNotesForMonth(selectedDate).observe(this) { notes ->
             val notesMap = notes.groupBy { it.date }
-
-            // Check if the adapter is already initialized
-            if (calendarRecyclerView.adapter == null) {
-                val adapter = CalendarAdapter(daysInMonth, selectedDate, notesMap,
+            val adapter = calendarRecyclerView.adapter as? CalendarAdapter
+            if (adapter == null) {
+                val newAdapter = CalendarAdapter(daysInMonthArray(selectedDate), selectedDate, notesMap,
                     onItemClick = { clickedDate ->
                         selectedDate = clickedDate
                         viewModel.setSelectedDate(selectedDate)
                     },
-                    onMonthChange = { date ->  // Handle month change
+                    onMonthChange = { date ->
                         selectedDate = date
                         viewModel.setSelectedDate(selectedDate)
-                        setMonthView() // Refresh the calendar
+                        setMonthView()
                     })
-                val layoutManager = GridLayoutManager(this, 7)
-                calendarRecyclerView.layoutManager = layoutManager
-                calendarRecyclerView.adapter = adapter
+                calendarRecyclerView.layoutManager = GridLayoutManager(this, 7)
+                calendarRecyclerView.adapter = newAdapter
             } else {
-                // If the adapter is initialized, update the data directly
-                val adapter = calendarRecyclerView.adapter as CalendarAdapter
-                adapter.setSelectedDate(selectedDate)
+                adapter.updateDays(daysInMonthArray(selectedDate), selectedDate)
+                adapter.updateNotesMap(notesMap)
             }
-        })
+        }
+
+        viewModel.selectedDate.observe(this) { date ->
+            selectedDate = date
+            setMonthView()
+        }
+
+    }
+
+    private fun setMonthView() {
+        monthYearText.text = monthYearFromDate(selectedDate)
+        val adapter = calendarRecyclerView.adapter as? CalendarAdapter
+        if (adapter != null) {
+            adapter.updateDays(daysInMonthArray(selectedDate), selectedDate)
+        }
     }
 
 
@@ -107,29 +112,30 @@ class Calendarik : AppCompatActivity(), NoteActionListener {
 
         val yearMonth = YearMonth.from(date)
         val firstOfMonth = date.withDayOfMonth(1)
-        val dayOfWeek = firstOfMonth.dayOfWeek.value // 1 (Monday) to 7 (Sunday)
-        val daysBefore = if (dayOfWeek == 1) 6 else dayOfWeek - 1 // Days to subtract to reach previous month
+        val dayOfWeek = firstOfMonth.dayOfWeek.value  // 1 (Monday) - 7 (Sunday)
 
-        // Add dates from the previous month
-        var prevMonth = date.minusMonths(1).withDayOfMonth(yearMonth.minusMonths(1).lengthOfMonth())
-        for (i in 1..daysBefore) {
-            daysInMonthArray.add(prevMonth)
-            prevMonth = prevMonth.minusDays(1)
+        // Количество пустых ячеек перед первым днём месяца (нужно сдвинуть на 1)
+        val daysBefore = dayOfWeek - 1  // Если понедельник - 0, если вторник - 1, ..., воскресенье - 6
+
+        // Добавляем null или дни предыдущего месяца
+        val prevMonth = yearMonth.minusMonths(1)
+        val prevMonthLength = prevMonth.lengthOfMonth()
+        for (i in daysBefore downTo 1) {
+            daysInMonthArray.add(prevMonth.atDay(prevMonthLength - i + 1))
         }
-        daysInMonthArray.reverse() // Reverse the list to get the correct order
 
-        // Add dates from the current month
+        // Добавляем дни текущего месяца
         val daysInMonth = yearMonth.lengthOfMonth()
         for (i in 1..daysInMonth) {
-            daysInMonthArray.add(LocalDate.of(date.year, date.monthValue, i))
+            daysInMonthArray.add(yearMonth.atDay(i))
         }
 
-        // Add dates from the next month
-        val daysAfter = 42 - daysInMonthArray.size // Ensure a 6-week calendar (7 x 6 = 42)
-        var nextMonth = date.plusMonths(1).withDayOfMonth(1)
+        // Добавляем дни следующего месяца, чтобы всего было 42 ячейки (6 недель)
+        val totalDays = 42
+        val daysAfter = totalDays - daysInMonthArray.size
+        val nextMonth = yearMonth.plusMonths(1)
         for (i in 1..daysAfter) {
-            daysInMonthArray.add(nextMonth)
-            nextMonth = nextMonth.plusDays(1)
+            daysInMonthArray.add(nextMonth.atDay(i))
         }
 
         return daysInMonthArray

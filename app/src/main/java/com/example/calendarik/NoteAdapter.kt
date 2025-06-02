@@ -1,5 +1,6 @@
 package com.example.calendarik
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -33,13 +34,18 @@ class NoteAdapter(private val listener: NoteActionListener) : ListAdapter<Note, 
                 note.startTime != null -> note.startTime.toString()
                 else -> ""
             }
-            val iconResource = when (note.category) {
-                "Brainstorm" -> R.drawable.oval_1
-                "Design" -> R.drawable.oval_2
-                "Workout" -> R.drawable.oval_3
-                else -> R.drawable.oval_1
+            val iconResource = when (note.category.trim().lowercase()) {
+                "brainstorm" -> R.drawable.oval_1
+                "design" -> R.drawable.oval_2
+                "workout" -> R.drawable.oval_3
+                else -> {
+                    Log.w("NoteAdapter", "Unknown category: ${note.category}")
+                    R.drawable.oval_1
+                }
             }
             categoryIcon.setImageResource(iconResource)
+
+            Log.d("NoteAdapter", "Category: ${note.category}")
 
             optionsButton.setOnClickListener { view ->
                 val popupMenu = PopupMenu(itemView.context, view)

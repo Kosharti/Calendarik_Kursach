@@ -50,7 +50,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun getNoteById(id: Long): LiveData<Note> {
+    fun getNoteById(id: Long): LiveData<Note?> {
         return noteDao.getNoteById(id).asLiveData()
     }
 

@@ -67,7 +67,7 @@
                 android:background="@android:color/transparent"
                 />
 
-        </LinearLayout>>
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -206,12 +206,11 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
-            <Switch
+            <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/reminderSwitch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColorLink="#735BF2"
-                android:theme="@style/Theme.Material3.DayNight" />
+                android:textColor="#222B45"/>
         </LinearLayout>
         <TextView
             android:layout_width="wrap_content"
@@ -226,41 +225,36 @@
             android:id="@+id/categoryChipGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:singleSelection="true">
+            app:singleSelection="true"
+            app:selectionRequired="true"
+            app:singleLine="true">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/brainstormChip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#000000"
-                app:chipIcon="@drawable/oval_1"
-                app:chipIconSize="20dp"
-                app:chipBackgroundColor="#F5F3FE"
-                android:fontFamily="@font/sfuitext_regular"
                 android:text="Brainstorm"
-                />
+                app:chipIcon="@drawable/oval_1"
+                app:chipBackgroundColor="@color/purple_light"
+                android:fontFamily="@font/sfuitext_regular"/>
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/designChip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#000000"
+                android:text="Design"
                 app:chipIcon="@drawable/oval_2"
-                app:chipIconSize="20dp"
-                app:chipBackgroundColor="#EDFAF6"
-                android:fontFamily="@font/sfuitext_regular"
-                android:text="Design"/>
+                app:chipBackgroundColor="@color/green_light"
+                android:fontFamily="@font/sfuitext_regular"/>
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/workoutChip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#000000"
+                android:text="Workout"
                 app:chipIcon="@drawable/oval_3"
-                app:chipIconSize="20dp"
-                app:chipBackgroundColor="#EDF7FF"
-                android:fontFamily="@font/sfuitext_regular"
-                android:text="Workout"/>
+                app:chipBackgroundColor="@color/blue_light"
+                android:fontFamily="@font/sfuitext_regular"/>
 
         </com.google.android.material.chip.ChipGroup>
 

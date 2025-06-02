@@ -15,7 +15,7 @@ import java.util.*
 class CalendarAdapter(
     private val days: ArrayList<LocalDate?>,
     private var selectedDate: LocalDate,
-    private val notesMap: Map<LocalDate, List<Note>>,
+    private var notesMap: Map<LocalDate, List<Note>>,
     private val onItemClick: (LocalDate) -> Unit,
     private val onMonthChange: (LocalDate) -> Unit
 ) : RecyclerView.Adapter<CalendarAdapter.CalendarViewHolder>() {
@@ -24,7 +24,7 @@ class CalendarAdapter(
 
     class CalendarViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val dayOfMonth: TextView = itemView.findViewById(R.id.dayTextView)
-        val circleIndicator: View = itemView.findViewById(R.id.circleIndicator)
+
         val ringsContainer: LinearLayout = itemView.findViewById(R.id.ringsContainer)
 
         fun clearBackground() {
@@ -45,7 +45,7 @@ class CalendarAdapter(
 
         if (date == null) {
             holder.dayOfMonth.text = ""
-            holder.circleIndicator.visibility = View.GONE
+
             holder.itemView.isEnabled = false
             holder.dayOfMonth.setTextColor(Color.LTGRAY)
         } else {
@@ -53,24 +53,29 @@ class CalendarAdapter(
             holder.itemView.isEnabled = true
 
             holder.dayOfMonth.setTextColor(if (date.monthValue == selectedDate.monthValue) Color.BLACK else Color.LTGRAY)
-            holder.circleIndicator.visibility = if (date == selectedDate) View.VISIBLE else View.GONE
+
 
             // 🟣 Показываем иконки категорий под числом
             holder.ringsContainer.removeAllViews()
             val notesForDay = notesMap[date]
-            notesForDay?.forEach { note ->
-                val imageView = ImageView(holder.itemView.context)
-                imageView.layoutParams = LinearLayout.LayoutParams(16, 16).apply {
-                    setMargins(2, 0, 2, 0)
+            if (notesForDay.isNullOrEmpty()) {
+                holder.ringsContainer.visibility = View.GONE
+            } else {
+                holder.ringsContainer.visibility = View.VISIBLE
+                notesForDay.forEach { note ->
+                    val imageView = ImageView(holder.itemView.context)
+                    imageView.layoutParams = LinearLayout.LayoutParams(16, 16).apply {
+                        setMargins(2, 0, 2, 0)
+                    }
+                    val icon = when (note.category.trim().lowercase()) {
+                        "brainstorm" -> R.drawable.oval_1
+                        "design" -> R.drawable.oval_2
+                        "workout" -> R.drawable.oval_3
+                        else -> R.drawable.oval_1
+                    }
+                    imageView.setImageResource(icon)
+                    holder.ringsContainer.addView(imageView)
                 }
-                val icon = when (note.category) {
-                    "Brainstorm" -> R.drawable.oval_1
-                    "Design" -> R.drawable.oval_2
-                    "Workout" -> R.drawable.oval_3
-                    else -> R.drawable.oval_1
-                }
-                imageView.setImageResource(icon)
-                holder.ringsContainer.addView(imageView)
             }
 
             holder.itemView.setOnClickListener {
@@ -103,6 +108,18 @@ class CalendarAdapter(
 
     fun setSelectedDate(date: LocalDate) {
         selectedDate = date
+        notifyDataSetChanged()
+    }
+
+    fun updateDays(newDays: ArrayList<LocalDate?>, newSelectedDate: LocalDate) {
+        days.clear()
+        days.addAll(newDays)
+        selectedDate = newSelectedDate
+        notifyDataSetChanged()
+    }
+
+    fun updateNotesMap(newNotesMap: Map<LocalDate, List<Note>>) {
+        this.notesMap = newNotesMap
         notifyDataSetChanged()
     }
 }
