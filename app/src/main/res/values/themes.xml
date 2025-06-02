@@ -14,9 +14,5 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="Theme.Calendarik" parent="Base.Theme.Calendarik">
-        <!-- Принудительно применяем стиль MD3 для всех Switch -->
-        <item name="switchStyle">@style/Widget.Material3.CompoundButton.Switch</item>
-        <item name="materialSwitchStyle">@style/Widget.Material3.CompoundButton.Switch</item>
-    </style>
+    <style name="Theme.Calendarik" parent="Base.Theme.Calendarik"/>
 </resources>
