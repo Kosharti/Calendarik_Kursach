@@ -18,6 +18,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.material3.Switch
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
@@ -33,7 +40,8 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private lateinit var dateEditText: EditText
     private lateinit var startTimeEditText: EditText
     private lateinit var endTimeEditText: EditText
-    private lateinit var reminderSwitch: SwitchMaterial
+    private lateinit var reminderSwitchCompose: ComposeView
+    private var isReminderEnabled = false
     private lateinit var categoryChipGroup: ChipGroup
     private lateinit var createEventButton: Button
     private lateinit var selectedDate: LocalDate
@@ -66,7 +74,20 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
         dateEditText = view.findViewById(R.id.dateTextView)
         startTimeEditText = view.findViewById(R.id.startTimeTextView)
         endTimeEditText = view.findViewById(R.id.endTimeTextView)
-        reminderSwitch = view.findViewById(R.id.reminderSwitch)
+        reminderSwitchCompose = view.findViewById(R.id.reminderSwitchCompose)
+        reminderSwitchCompose.setContent {
+            MaterialTheme {
+                var checked by remember { mutableStateOf(isReminderEnabled) }
+                Switch(
+                    checked = checked,
+                    onCheckedChange = {
+                        checked = it
+                        isReminderEnabled = it
+                        Log.d("SwitchDebug", "Reminder switched: $it")
+                    }
+                )
+            }
+        }
         categoryChipGroup = view.findViewById(R.id.categoryChipGroup)
         createEventButton = view.findViewById(R.id.createEventButton)
 
@@ -130,7 +151,19 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
                     selectedEndTime = note.endTime
                     startTimeEditText.setText(note.startTime?.format(DateTimeFormatter.ofPattern("HH:mm")) ?: "")
                     endTimeEditText.setText(note.endTime?.format(DateTimeFormatter.ofPattern("HH:mm")) ?: "")
-                    reminderSwitch.isChecked = note.reminderEnabled
+                    isReminderEnabled = note.reminderEnabled
+                    reminderSwitchCompose.setContent {
+                        MaterialTheme {
+                            var checked by remember { mutableStateOf(isReminderEnabled) }
+                            Switch(
+                                checked = checked,
+                                onCheckedChange = {
+                                    checked = it
+                                    isReminderEnabled = it
+                                }
+                            )
+                        }
+                    }
 
                     val categoryLower = note.category.trim().lowercase(Locale.getDefault())
                     Log.d("AddNoteBottomSheet", "Loading note category: '$categoryLower'")
@@ -235,7 +268,7 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
         Log.d("AddNoteBottomSheet", "Final category: $category")
 
-        val remind = reminderSwitch.isChecked
+        val remind = isReminderEnabled
 
         Log.d("AddNoteBottomSheet", "Event Name: $name")
         Log.d("AddNoteBottomSheet", "Note Text: $text")
@@ -250,13 +283,13 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
             startTime = selectedStartTime,
             endTime = selectedEndTime,
             category = category,
-            reminderEnabled = remind
+            reminderEnabled = isReminderEnabled
         )
 
         if (noteId == null || noteId == 0L) viewModel.insertNote(note)
         else viewModel.updateNote(note)
 
-        scheduleNotification(name, selectedDate, selectedStartTime, remind, noteId ?: System.currentTimeMillis())
+        scheduleNotification(name, selectedDate, selectedStartTime, isReminderEnabled, noteId ?: System.currentTimeMillis())
         viewModel.setSelectedDate(selectedDate)
         dismiss()
     }

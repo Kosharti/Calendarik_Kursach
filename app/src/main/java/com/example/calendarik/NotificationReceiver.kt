@@ -12,7 +12,7 @@ class NotificationReceiver : BroadcastReceiver() {
         val noteId = intent.getLongExtra("noteId", System.currentTimeMillis())
 
         val notification = NotificationCompat.Builder(context, "event_channel")
-            .setSmallIcon(R.drawable.ic_notifications) // замените на свою иконку
+            .setSmallIcon(R.drawable.ic_notifications)
             .setContentTitle("Event Reminder")
             .setContentText("Don't forget about $eventName!")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
