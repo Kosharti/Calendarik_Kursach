@@ -77,12 +77,13 @@ dependencies {
     testImplementation("androidx.test:rules:1.5.0")
 
     testImplementation(libs.junit)
-    testImplementation("org.mockito:mockito-core:3.12.4")
+    testImplementation("org.mockito:mockito-core:4.5.1")
     testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
     testImplementation("androidx.arch.core:core-testing:2.2.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
     testImplementation("app.cash.turbine:turbine:1.0.0")
 
+    androidTestImplementation("org.mockito:mockito-android:4.5.1")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation("androidx.test:core:1.5.0")
     androidTestImplementation(libs.androidx.espresso.core)

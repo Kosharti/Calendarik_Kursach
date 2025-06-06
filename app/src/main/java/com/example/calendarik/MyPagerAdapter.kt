@@ -18,7 +18,7 @@ class MyPagerAdapter(private val items: List<PageData>) : RecyclerView.Adapter<M
         val textView2: TextView = view.findViewById(R.id.textView2)
         val textView3: TextView = view.findViewById(R.id.textView3)
         val imageView2: ImageView = view.findViewById(R.id.imageView2)
-        val imageButton1: ImageView = view.findViewById(R.id.imageButton1)
+        var imageButton1: ImageView = view.findViewById(R.id.imageButton1)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

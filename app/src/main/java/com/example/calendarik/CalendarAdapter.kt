@@ -124,4 +124,6 @@ class CalendarAdapter(
         this.notesMap = newNotesMap
         notifyDataSetChanged()
     }
+
+    fun getSelectedDate(): LocalDate = selectedDate
 }
