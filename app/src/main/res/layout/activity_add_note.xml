@@ -127,6 +127,7 @@
                     android:fontFamily="@font/sfuitext_regular"
                     android:hint="Start Time"
                     android:textAlignment="center"
+
                     android:textSize="15dp"
                     android:layout_marginStart="10dp"
                     android:background="@android:color/transparent"/>
@@ -167,6 +168,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textAlignment="center"
+
                     android:textColor="#8F9BB3"
                     android:fontFamily="@font/sfuitext_regular"
                     android:textSize="15dp"

@@ -9,10 +9,14 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.text.Editable
+import android.text.InputFilter
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
@@ -53,6 +57,8 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private var noteId: Long? = null
 
     private val EXACT_ALARM_PERMISSION_CODE = 123
+    private val timeFormat = DateTimeFormatter.ofPattern("HH:mm")
+    private val dateFormat = DateTimeFormatter.ISO_LOCAL_DATE
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,6 +83,18 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
         startTimeEditText = view.findViewById(R.id.startTimeTextView)
         endTimeEditText = view.findViewById(R.id.endTimeTextView)
         reminderSwitchCompose = view.findViewById(R.id.reminderSwitchCompose)
+        categoryChipGroup = view.findViewById(R.id.categoryChipGroup)
+        createEventButton = view.findViewById(R.id.createEventButton)
+
+        setupReminderSwitch()
+        setupChips()
+        setupDateAndTimeInputs()
+        setupButton()
+        loadNoteIfEditing()
+        checkNotificationPermission()
+    }
+
+    private fun setupReminderSwitch() {
         reminderSwitchCompose.setContent {
             MaterialTheme {
                 var checked by remember { mutableStateOf(isReminderEnabled) }
@@ -97,125 +115,154 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
                         disabledCheckedTrackColor = Color(0xFF735BF2),
                         uncheckedBorderColor = Color.Transparent,
                         checkedBorderColor = Color.Transparent
-                    ),
+                    )
                 )
             }
         }
-        categoryChipGroup = view.findViewById(R.id.categoryChipGroup)
-        createEventButton = view.findViewById(R.id.createEventButton)
+    }
 
-        val brainstormChip = view.findViewById<Chip>(R.id.brainstormChip)
-
-        val designChip = view.findViewById<Chip>(R.id.designChip)
-
-        val workoutChip = view.findViewById<Chip>(R.id.workoutChip)
+    private fun setupChips() {
+        val brainstormChip = requireView().findViewById<Chip>(R.id.brainstormChip)
+        val designChip = requireView().findViewById<Chip>(R.id.designChip)
+        val workoutChip = requireView().findViewById<Chip>(R.id.workoutChip)
 
         brainstormChip.setOnClickListener {
             categoryChipGroup.check(R.id.brainstormChip)
             brainstormChip.setChipBackgroundColorResource(R.color.purple_light)
             brainstormChip.chipIcon = ContextCompat.getDrawable(requireContext(), R.drawable.oval_1)
-            Log.d("ChipDebug", "Brainstorm clicked! Current checked: ${categoryChipGroup.checkedChipId}")
         }
 
         designChip.setOnClickListener {
             categoryChipGroup.check(R.id.designChip)
             designChip.setChipBackgroundColorResource(R.color.green_light)
             designChip.chipIcon = ContextCompat.getDrawable(requireContext(), R.drawable.oval_2)
-            Log.d("ChipDebug", "Design clicked! Current checked: ${categoryChipGroup.checkedChipId}")
         }
 
         workoutChip.setOnClickListener {
             categoryChipGroup.check(R.id.workoutChip)
             workoutChip.setChipBackgroundColorResource(R.color.blue_light)
             workoutChip.chipIcon = ContextCompat.getDrawable(requireContext(), R.drawable.oval_3)
-            Log.d("ChipDebug", "Workout clicked! Current checked: ${categoryChipGroup.checkedChipId}")
         }
+    }
 
-        val dateButton: ImageButton = view.findViewById(R.id.dateButton)
-        val startTimeButton: ImageButton = view.findViewById(R.id.startTimeButton)
-        val endTimeButton: ImageButton = view.findViewById(R.id.endTimeButton)
-
+    private fun setupDateAndTimeInputs() {
         val dateString = arguments?.getString("selectedDate")
         selectedDate = if (dateString != null) LocalDate.parse(dateString) else LocalDate.now()
         updateDateEditText()
 
-        dateEditText.setOnClickListener { showDatePickerDialog() }
-        dateButton.setOnClickListener { showDatePickerDialog() }
-        startTimeEditText.setOnClickListener { showTimePickerDialog(true) }
-        startTimeButton.setOnClickListener { showTimePickerDialog(true) }
-        endTimeEditText.setOnClickListener { showTimePickerDialog(false) }
-        endTimeButton.setOnClickListener { showTimePickerDialog(false) }
+        requireView().findViewById<ImageButton>(R.id.dateButton).setOnClickListener { showDatePickerDialog() }
+        requireView().findViewById<ImageButton>(R.id.startTimeButton).setOnClickListener { showTimePickerDialog(true) }
+        requireView().findViewById<ImageButton>(R.id.endTimeButton).setOnClickListener { showTimePickerDialog(false) }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 999)
-            }
-        }
-
-        noteId?.let {
-            viewModel.getNoteById(it).observe(viewLifecycleOwner) { note ->
-                if (note != null) {
-                    eventNameEditText.setText(note.eventName)
-                    noteTextEditText.setText(note.noteText)
-                    dateEditText.setText(note.date.toString())
-                    selectedDate = note.date
-                    selectedStartTime = note.startTime
-                    selectedEndTime = note.endTime
-                    startTimeEditText.setText(note.startTime?.format(DateTimeFormatter.ofPattern("HH:mm")) ?: "")
-                    endTimeEditText.setText(note.endTime?.format(DateTimeFormatter.ofPattern("HH:mm")) ?: "")
-                    isReminderEnabled = note.reminderEnabled
-                    reminderSwitchCompose.setContent {
-                        MaterialTheme {
-                            var checked by remember { mutableStateOf(isReminderEnabled) }
-                            Switch(
-                                checked = checked,
-                                onCheckedChange = {
-                                    checked = it
-                                    isReminderEnabled = it
-                                },
-                                colors = SwitchDefaults.colors(
-                                    uncheckedThumbColor = Color.White,
-                                    uncheckedTrackColor = Color(0xFFCED3DE),
-                                    checkedThumbColor = Color.White,
-                                    checkedTrackColor = Color(0xFF735BF2),
-                                    disabledUncheckedThumbColor = Color.White,
-                                    disabledUncheckedTrackColor = Color(0xFFCED3DE),
-                                    disabledCheckedThumbColor = Color.White,
-                                    disabledCheckedTrackColor = Color(0xFF735BF2)
-                                )
-                            )
-                        }
-                    }
-
-                    val categoryLower = note.category.trim().lowercase(Locale.getDefault())
-                    Log.d("AddNoteBottomSheet", "Loading note category: '$categoryLower'")
-                    when (categoryLower) {
-                        "brainstorm" -> {
-                            categoryChipGroup.check(R.id.brainstormChip)
-                            Log.d("AddNoteBottomSheet", "Selected brainstorm chip")
-                        }
-                        "design" -> {
-                            categoryChipGroup.check(R.id.designChip)
-                            Log.d("AddNoteBottomSheet", "Selected design chip")
-                        }
-                        "workout" -> {
-                            categoryChipGroup.check(R.id.workoutChip)
-                            Log.d("AddNoteBottomSheet", "Selected workout chip")
-                        }
-                        else -> {
-                            categoryChipGroup.clearCheck()
-                            Log.w("AddNoteBottomSheet", "Unknown category: '$categoryLower'")
-                        }
-                    }
-                    Log.d("AddNoteBottomSheet", "Note category: '${note.category}', lower: '$categoryLower'")
-                } else {
-                    Log.w("AddNoteBottomSheet", "Note with id $it not found")
+        val timeInputFilter = InputFilter { source, start, end, dest, dstart, dend ->
+            for (i in start until end) {
+                if (!Character.isDigit(source[i]) && source[i] != ':') {
+                    return@InputFilter ""
                 }
             }
+            null
         }
 
+        val dateInputFilter = InputFilter { source, start, end, dest, dstart, dend ->
+            for (i in start until end) {
+                if (!Character.isDigit(source[i]) && source[i] != '-') {
+                    return@InputFilter ""
+                }
+            }
+            null
+        }
+
+        startTimeEditText.filters = arrayOf(timeInputFilter, InputFilter.LengthFilter(5))
+        endTimeEditText.filters = arrayOf(timeInputFilter, InputFilter.LengthFilter(5))
+        dateEditText.filters = arrayOf(dateInputFilter, InputFilter.LengthFilter(10))
+
+        startTimeEditText.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                if (s?.length == 2 && !s.contains(':')) {
+                    s.insert(2, ":")
+                }
+                try {
+                    val time = LocalTime.parse(s.toString(), timeFormat)
+                    selectedStartTime = time
+                    startTimeEditText.error = null
+
+                    selectedEndTime?.let {
+                        if (it.isBefore(time)) {
+                            endTimeEditText.error = "End time must be after start time"
+                        }
+                    }
+                } catch (e: Exception) {
+                    if (s?.isNotBlank() == true) {
+                        startTimeEditText.error = "Invalid time format (HH:mm)"
+                    }
+                }
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
+        endTimeEditText.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                if (s?.length == 2 && !s.contains(':')) {
+                    s.insert(2, ":")
+                }
+                try {
+                    val time = LocalTime.parse(s.toString(), timeFormat)
+                    selectedEndTime = time
+                    endTimeEditText.error = null
+
+                    selectedStartTime?.let {
+                        if (time.isBefore(it)) {
+                            endTimeEditText.error = "End time must be after start time"
+                        }
+                    }
+                } catch (e: Exception) {
+                    if (s?.isNotBlank() == true) {
+                        endTimeEditText.error = "Invalid time format (HH:mm)"
+                    }
+                }
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
+        dateEditText.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                if (s != null) {
+                    if (s.length == 4 && !s.contains('-')) {
+                        s.insert(4, "-")
+                    } else if (s.length == 7 && s.count { it == '-' } == 1) {
+                        s.insert(7, "-")
+                    }
+                }
+
+                try {
+                    selectedDate = LocalDate.parse(s.toString(), dateFormat)
+                    dateEditText.error = null
+                } catch (e: Exception) {
+                    if (s?.isNotBlank() == true) {
+                        dateEditText.error = "Invalid date format (YYYY-MM-DD)"
+                    }
+                }
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+    }
+
+    private fun setupButton() {
         createEventButton.setOnClickListener {
+
+            view?.let { v ->
+                val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(v.windowToken, 0)
+            }
+
+            if (!validateInputs()) {
+                Toast.makeText(context, "Please correct the errors", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
                 ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.SCHEDULE_EXACT_ALARM)
                 != PackageManager.PERMISSION_GRANTED
@@ -231,8 +278,93 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
         }
     }
 
+    private fun validateInputs(): Boolean {
+        val name = eventNameEditText.text.toString()
+        if (name.isBlank()) {
+            eventNameEditText.error = "Event name is required"
+            return false
+        }
+
+        try {
+            selectedStartTime?.let { startTime ->
+                selectedEndTime?.let { endTime ->
+                    if (endTime.isBefore(startTime)) {
+                        endTimeEditText.error = "End time must be after start time"
+                        return false
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("InputValidation", "Time validation error", e)
+            return false
+        }
+
+        try {
+            LocalDate.parse(dateEditText.text.toString(), dateFormat)
+        } catch (e: Exception) {
+            dateEditText.error = "Invalid date format"
+            return false
+        }
+
+        return true
+    }
+
+    private fun loadNoteIfEditing() {
+        noteId?.let {
+            viewModel.getNoteById(it).observe(viewLifecycleOwner) { note ->
+                if (note != null) {
+                    eventNameEditText.setText(note.eventName)
+                    noteTextEditText.setText(note.noteText)
+                    selectedDate = note.date
+                    dateEditText.setText(note.date.toString())
+                    selectedStartTime = note.startTime
+                    selectedEndTime = note.endTime
+                    startTimeEditText.setText(note.startTime?.format(timeFormat) ?: "")
+                    endTimeEditText.setText(note.endTime?.format(timeFormat) ?: "")
+                    isReminderEnabled = note.reminderEnabled
+
+                    reminderSwitchCompose.setContent {
+                        MaterialTheme {
+                            var checked by remember { mutableStateOf(isReminderEnabled) }
+                            Switch(
+                                checked = checked,
+                                onCheckedChange = {
+                                    checked = it
+                                    isReminderEnabled = it
+                                },
+                                colors = SwitchDefaults.colors(
+                                    uncheckedThumbColor = Color.White,
+                                    uncheckedTrackColor = Color(0xFFCED3DE),
+                                    checkedThumbColor = Color.White,
+                                    checkedTrackColor = Color(0xFF735BF2)
+                                )
+                            )
+                        }
+                    }
+
+                    val categoryLower = note.category.trim().lowercase(Locale.getDefault())
+                    when (categoryLower) {
+                        "brainstorm" -> categoryChipGroup.check(R.id.brainstormChip)
+                        "design" -> categoryChipGroup.check(R.id.designChip)
+                        "workout" -> categoryChipGroup.check(R.id.workoutChip)
+                        else -> categoryChipGroup.clearCheck()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 999)
+            }
+        }
+    }
+
     private fun updateDateEditText() {
-        dateEditText.setText(selectedDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
+        dateEditText.setText(selectedDate.format(dateFormat))
     }
 
     private fun showDatePickerDialog() {
@@ -250,10 +382,10 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
             val time = LocalTime.of(h, m)
             if (isStart) {
                 selectedStartTime = time
-                startTimeEditText.setText(time.format(DateTimeFormatter.ofPattern("HH:mm")))
+                startTimeEditText.setText(time.format(timeFormat))
             } else {
                 selectedEndTime = time
-                endTimeEditText.setText(time.format(DateTimeFormatter.ofPattern("HH:mm")))
+                endTimeEditText.setText(time.format(timeFormat))
             }
         }, now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), true)
         tpd.show()
@@ -263,39 +395,13 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
         val name = eventNameEditText.text.toString()
         val text = noteTextEditText.text.toString()
 
-        Log.d("AddNoteBottomSheet", "Checked Chip ID: ${categoryChipGroup.checkedChipId}")
-        Log.d("AddNoteBottomSheet", "All Chip IDs: brainstorm=${R.id.brainstormChip}, design=${R.id.designChip}, workout=${R.id.workoutChip}")
-
         val selectedChipId = categoryChipGroup.checkedChipId
-        Log.d("AddNoteBottomSheet", "Selected Chip ID: $selectedChipId")
-
         val category = when (selectedChipId) {
-            R.id.brainstormChip -> {
-                Log.d("AddNoteBottomSheet", "Selected: brainstorm")
-                "brainstorm"
-            }
-            R.id.designChip -> {
-                Log.d("AddNoteBottomSheet", "Selected: design")
-                "design"
-            }
-            R.id.workoutChip -> {
-                Log.d("AddNoteBottomSheet", "Selected: workout")
-                "workout"
-            }
-            else -> {
-                Log.w("AddNoteBottomSheet", "No chip selected! Defaulting to 'other'")
-                "other"
-            }
+            R.id.brainstormChip -> "brainstorm"
+            R.id.designChip -> "design"
+            R.id.workoutChip -> "workout"
+            else -> "other"
         }
-
-        Log.d("AddNoteBottomSheet", "Final category: $category")
-
-        val remind = isReminderEnabled
-
-        Log.d("AddNoteBottomSheet", "Event Name: $name")
-        Log.d("AddNoteBottomSheet", "Note Text: $text")
-        Log.d("AddNoteBottomSheet", "Category: $category")
-        Log.d("AddNoteBottomSheet", "Reminder: $remind")
 
         val note = Note(
             id = noteId ?: 0,
