@@ -69,12 +69,10 @@ class CalendarAdapter(
             holder.dayOfMonth.text = date.dayOfMonth.toString()
             holder.itemView.isEnabled = true
 
-            // Устанавливаем цвет текста в зависимости от месяца
             holder.dayOfMonth.setTextColor(
                 if (date.monthValue == selectedDate.monthValue) Color.BLACK else Color.LTGRAY
             )
 
-            // Отображаем кольца
             holder.ringsContainer.removeAllViews()
             val notesForDay = notesMap[date]
             if (!notesForDay.isNullOrEmpty()) {
@@ -96,10 +94,6 @@ class CalendarAdapter(
                 }
             }
 
-            // Обработка клика
-
-
-            // Выделение выбранного дня
             if (position == selectedPosition) {
                 holder.dayOfMonth.background = holder.itemView.context.getDrawable(R.drawable.rounded_corner_background)
                 holder.dayOfMonth.setTextColor(Color.WHITE)

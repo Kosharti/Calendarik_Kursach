@@ -13,13 +13,13 @@ interface NoteDao {
     fun getNotesForMonth(startDate: LocalDate, endDate: LocalDate): Flow<List<Note>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(note: Note): Long  // Возвращает Long
+    suspend fun insert(note: Note): Long
 
     @Update
-    suspend fun update(note: Note): Int   // Возвращает Int
+    suspend fun update(note: Note): Int
 
     @Delete
-    suspend fun delete(note: Note): Int   // Возвращает Int
+    suspend fun delete(note: Note): Int
 
     @Query("SELECT * FROM notes ORDER BY date ASC")
     fun getAlphabetizedNotes(): Flow<List<Note>>

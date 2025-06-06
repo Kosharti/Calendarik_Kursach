@@ -87,15 +87,15 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
                         isReminderEnabled = it
                     },
                     colors = SwitchDefaults.colors(
-                        uncheckedThumbColor = Color.White, // Круг в выключенном состоянии
-                        uncheckedTrackColor = Color(0xFFCED3DE), // Фон в выключенном состоянии
-                        checkedThumbColor = Color.White, // Круг во включенном состоянии
-                        checkedTrackColor = Color(0xFF735BF2), // Фон во включенном состоянии (фиолетовый как у кнопки)
+                        uncheckedThumbColor = Color.White,
+                        uncheckedTrackColor = Color(0xFFCED3DE),
+                        checkedThumbColor = Color.White,
+                        checkedTrackColor = Color(0xFF735BF2),
                         disabledUncheckedThumbColor = Color.White,
                         disabledUncheckedTrackColor = Color(0xFFCED3DE),
                         disabledCheckedThumbColor = Color.White,
                         disabledCheckedTrackColor = Color(0xFF735BF2),
-                        uncheckedBorderColor = Color.Transparent, // Убираем обводку в выключенном состоянии
+                        uncheckedBorderColor = Color.Transparent,
                         checkedBorderColor = Color.Transparent
                     ),
                 )
@@ -175,10 +175,10 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
                                     isReminderEnabled = it
                                 },
                                 colors = SwitchDefaults.colors(
-                                    uncheckedThumbColor = Color.White, // Круг в выключенном состоянии
-                                    uncheckedTrackColor = Color(0xFFCED3DE), // Фон в выключенном состоянии
-                                    checkedThumbColor = Color.White, // Круг во включенном состоянии
-                                    checkedTrackColor = Color(0xFF735BF2), // Фон во включенном состоянии (фиолетовый как у кнопки)
+                                    uncheckedThumbColor = Color.White,
+                                    uncheckedTrackColor = Color(0xFFCED3DE),
+                                    checkedThumbColor = Color.White,
+                                    checkedTrackColor = Color(0xFF735BF2),
                                     disabledUncheckedThumbColor = Color.White,
                                     disabledUncheckedTrackColor = Color(0xFFCED3DE),
                                     disabledCheckedThumbColor = Color.White,
@@ -210,7 +210,6 @@ class AddNoteBottomSheetDialogFragment : BottomSheetDialogFragment() {
                     }
                     Log.d("AddNoteBottomSheet", "Note category: '${note.category}', lower: '$categoryLower'")
                 } else {
-                    // Можно добавить логи или показать сообщение об ошибке
                     Log.w("AddNoteBottomSheet", "Note with id $it not found")
                 }
             }

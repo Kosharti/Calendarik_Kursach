@@ -20,7 +20,6 @@ class NotificationReceiver : BroadcastReceiver() {
             .build()
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        // Используем модульность ID, чтобы избежать конфликтов
         val notificationId = (noteId % Integer.MAX_VALUE).toInt()
         notificationManager.notify(notificationId, notification)
     }

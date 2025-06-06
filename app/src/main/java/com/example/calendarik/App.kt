@@ -10,7 +10,6 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        // Создаем канал уведомлений (для Android 8.0 и выше)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channelId = "event_channel"
             val channelName = "Event Reminders"

@@ -42,7 +42,7 @@ class Calendarik : AppCompatActivity(), NoteActionListener {
         selectedDate = LocalDate.now()
         setMonthView()
 
-        notesAdapter = NoteAdapter(this) // Pass the activity as the listener
+        notesAdapter = NoteAdapter(this)
         notesRecyclerView.adapter = notesAdapter
         notesRecyclerView.layoutManager = LinearLayoutManager(this)
         notesRecyclerView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
@@ -112,25 +112,21 @@ class Calendarik : AppCompatActivity(), NoteActionListener {
 
         val yearMonth = YearMonth.from(date)
         val firstOfMonth = date.withDayOfMonth(1)
-        val dayOfWeek = firstOfMonth.dayOfWeek.value  // 1 (Monday) - 7 (Sunday)
+        val dayOfWeek = firstOfMonth.dayOfWeek.value
 
-        // Количество пустых ячеек перед первым днём месяца (нужно сдвинуть на 1)
-        val daysBefore = dayOfWeek - 1  // Если понедельник - 0, если вторник - 1, ..., воскресенье - 6
+        val daysBefore = dayOfWeek - 1
 
-        // Добавляем null или дни предыдущего месяца
         val prevMonth = yearMonth.minusMonths(1)
         val prevMonthLength = prevMonth.lengthOfMonth()
         for (i in daysBefore downTo 1) {
             daysInMonthArray.add(prevMonth.atDay(prevMonthLength - i + 1))
         }
 
-        // Добавляем дни текущего месяца
         val daysInMonth = yearMonth.lengthOfMonth()
         for (i in 1..daysInMonth) {
             daysInMonthArray.add(yearMonth.atDay(i))
         }
 
-        // Добавляем дни следующего месяца, чтобы всего было 42 ячейки (6 недель)
         val totalDays = 42
         val daysAfter = totalDays - daysInMonthArray.size
         val nextMonth = yearMonth.plusMonths(1)
