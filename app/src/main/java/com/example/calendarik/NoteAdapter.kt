@@ -16,7 +16,7 @@ interface NoteActionListener {
     fun onDelete(note: Note)
 }
 
-class NoteAdapter(private val listener: NoteActionListener) : ListAdapter<Note, NoteAdapter.NoteViewHolder>(NoteDiffCallback()) {
+class NoteAdapter(internal val listener: NoteActionListener) : ListAdapter<Note, NoteAdapter.NoteViewHolder>(NoteDiffCallback()) {
 
     class NoteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val eventNameTextView: TextView = itemView.findViewById(R.id.eventNameTextView)

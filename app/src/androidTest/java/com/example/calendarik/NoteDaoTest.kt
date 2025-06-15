@@ -72,6 +72,18 @@ class NoteDaoTest {
         assertEquals(date, notes[0].date)
     }
 
+    @Test
+    fun updateNote_updatesExistingNote() = runBlocking {
+        val note = createTestNote()
+        val id = noteDao.insert(note)
+
+        val updatedNote = note.copy(id = id, eventName = "Updated Test")
+        noteDao.update(updatedNote)
+
+        val loaded = noteDao.getNoteById(id).first()
+        assertEquals("Updated Test", loaded?.eventName)
+    }
+
     @After
     fun closeDb() {
         database.close()

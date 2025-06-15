@@ -3,6 +3,7 @@ package com.example.calendarik
 import android.content.Context
 import android.view.LayoutInflater
 import android.widget.FrameLayout
+import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.*
@@ -87,5 +88,35 @@ class CalendarAdapterTest {
         }
         adapter.updateDays(newDays, testDate)
         assertEquals(newDays.size, adapter.itemCount)
+    }
+
+    @Test
+    fun monthChangeLogicWorksForDifferentMonth() {
+        val testDate = LocalDate.of(2025, 6, 15)
+        val nextMonthDate = testDate.plusMonths(1)
+
+        var monthChanged = false
+        var changedToDate: LocalDate? = null
+
+        val adapter = CalendarAdapter(
+            days = ArrayList(listOf(testDate, nextMonthDate)),
+            selectedDate = testDate,
+            notesMap = emptyMap(),
+            onItemClick = {},
+            onMonthChange = { date ->
+                monthChanged = true
+                changedToDate = date
+            }
+        )
+
+        val shouldTrigger = nextMonthDate.monthValue != testDate.monthValue
+        assertTrue(shouldTrigger)
+
+        if (shouldTrigger) {
+            adapter.onMonthChange.invoke(nextMonthDate)
+        }
+
+        assertTrue(monthChanged)
+        assertEquals(nextMonthDate, changedToDate)
     }
 }

@@ -17,7 +17,7 @@ class CalendarAdapter(
     private var selectedDate: LocalDate,
     private var notesMap: Map<LocalDate, List<Note>>,
     private val onItemClick: (LocalDate) -> Unit,
-    private val onMonthChange: (LocalDate) -> Unit
+    internal val onMonthChange: (LocalDate) -> Unit
 ) : RecyclerView.Adapter<CalendarAdapter.CalendarViewHolder>() {
 
     private var selectedPosition = RecyclerView.NO_POSITION
